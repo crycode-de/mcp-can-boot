@@ -1,0 +1,12 @@
+.pio
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.travis.yml
+**/node_modules
+include
+lib
+test
+flash-app/node_modules/
+build.log

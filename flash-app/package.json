@@ -1,0 +1,32 @@
+{
+  "name": "mcp-can-boot-flash-app",
+  "version": "1.0.0",
+  "description": "Flash application for the MCP-CAN-Boot CAN bus bootloader",
+  "main": "flash-app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Peter Müller",
+    "email": "peter@crycode.de"
+  },
+  "keywords": [
+    "mcp2515",
+    "bootloader",
+    "can bus",
+    "avr",
+    "atmega"
+  ],
+  "homepage": "https://git.cryhost.de/crycode/mcp-can-boot",
+  "repository": {
+    "type": "git",
+    "url": "https://git.cryhost.de/crycode/mcp-can-boot.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "private": true,
+  "dependencies": {
+    "nrf-intel-hex": "^1.3.0",
+    "socketcan": "^2.8.0",
+    "yargs": "^15.3.1"
+  }
+}
