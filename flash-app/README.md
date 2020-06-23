@@ -9,6 +9,15 @@ Flash application for **[MCP-CAN-Boot](https://git.cryhost.de/crycode/mcp-can-bo
 More information about the bootloader are available in the official repository: https://git.cryhost.de/crycode/mcp-can-boot
 
 
+## Requirements
+
+* Node.js version 10 or higher.
+
+* The system where the flash-app is run needs a CAN interface to which the target MCU is connected.
+
+  This may be a Raspberry Pi with an attached MCP2515 CAN controller, for example.
+
+
 ## Usage
 
 No need to install: Just run the flash-app using `npx`:
