@@ -113,6 +113,14 @@ class FlashApp {
       .help()
       .version(false)
       .alias('help', 'h')
+
+      .usage(`
+= MCP-CAN-Boot Flash-App =
+Flash application for MCP-CAN-Boot, a CAN bus bootloader for AVR microcontrollers attached to an MCP2515 CAN controller.
+
+https://git.cryhost.de/crycode/mcp-can-boot`)
+      .example('$0 -f firmware.hex -p m1284p -m 0x0042')
+      .example('$0 -r -f - -p m328p -m 0x0042')
       .argv;
 
     this.mcuId = [(this.args.mcuid >> 8) & 0xFF, this.args.mcuid & 0xFF];
@@ -127,6 +135,10 @@ class FlashApp {
 
     if (!this.doRead) {
       // load from file if we are not only reading the flash
+      if (!fs.existsSync(this.args.file)) {
+        console.log(`Input file ${this.args.file} does not exist!`);
+        process.exit(1);
+      }
       const intelHexString = fs.readFileSync(this.args.file, 'latin1');
       this.memMap = MemoryMap.fromHex(intelHexString);
 
