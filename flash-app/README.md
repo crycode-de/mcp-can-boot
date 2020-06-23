@@ -1,0 +1,52 @@
+# MCP-CAN-Boot Flash-App
+
+![MCP-CAN-Boot logo](https://git.cryhost.de/crycode/mcp-can-boot/-/raw/master/doc/mcp-can-boot-256.png)
+
+Flash application for **[MCP-CAN-Boot](https://git.cryhost.de/crycode/mcp-can-boot)**, a CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN controller.
+
+## The bootloader
+
+More information about the bootloader are available in the official repository: https://git.cryhost.de/crycode/mcp-can-boot
+
+
+## Usage
+
+No need to install: Just run the flash-app using `npx`:
+
+```
+npx mcp-can-boot-flash-app [...]
+```
+
+## Flash-App parameters
+
+```
+--file, -f       Hex file to flash                         [string] [required]
+--iface, -i      CAN interface to use               [string] [default: "can0"]
+--partno, -p     Specific AVR device like in avrdude       [string] [required]
+--mcuid, -m      ID of the MCU bootloader                  [string] [required]
+-e               Erase whole flash before flashing new data          [boolean]
+-V               Do not verify                                       [boolean]
+-r               Read flash and save to given file (no flashing!), optional
+                 with maximum address to read until                   [string]
+-F               Force flashing, even if the bootloader version missmatched
+                                                                     [boolean]
+--can-id-mcu     CAN-ID for messages from MCU to remote
+                                                [string] [default: 0x1FFFFF01]
+--can-id-remote  CAN-ID for messages from remote to MCU
+                                                [string] [default: 0x1FFFFF02]
+--help, -h       Show help                                           [boolean]
+```
+
+Example:
+```
+npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042
+```
+
+
+## License
+
+**CC BY-NC-SA 4.0**
+
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+Copyright (C) 2020 Peter Müller <peter@crycode.de> (https://crycode.de)

@@ -11,8 +11,8 @@ const CAN_DATA_BYTE_MCU_ID_LSB   = 1
 const CAN_DATA_BYTE_CMD          = 2
 const CAN_DATA_BYTE_LEN_AND_ADDR = 3
 
-const CAN_ID_MCU_TO_REMOTE = 0x1FFFFF01
-const CAN_ID_REMOTE_TO_MCU = 0x1FFFFF02
+const CAN_ID_MCU_TO_REMOTE_DEFAULT = 0x1FFFFF01
+const CAN_ID_REMOTE_TO_MCU_DEFAULT = 0x1FFFFF02
 
 const CMD_ERROR                    = 0b00000001
 const CMD_BOOTLOADER_START         = 0b00000010
@@ -69,9 +69,9 @@ class FlashApp {
         description: 'ID of the MCU bootloader',
         type: 'string',
         demandOption: true,
-        requiresArg: true
+        requiresArg: true,
+        coerce: this.parseNumber
       })
-      .coerce('mcuid', this.parseNumber)
 
       .option('e', {
         description: 'Erase whole flash before flashing new data',
@@ -84,14 +84,30 @@ class FlashApp {
       })
 
       .option('r', {
-        description: 'Read whole flash and save to given file (no flashing!)',
-        type: 'string'
+        description: 'Read flash and save to given file (no flashing!), optional with maximum address to read until',
+        type: 'string',
+        coerce: this.parseNumber
       })
-      .coerce('r', this.parseNumber)
 
       .option('F', {
         description: 'Force flashing, even if the bootloader version missmatched',
         type: 'boolean'
+      })
+
+      .option('can-id-mcu', {
+        description: 'CAN-ID for messages from MCU to remote',
+        type: 'string',
+        default: CAN_ID_MCU_TO_REMOTE_DEFAULT,
+        requiresArg: true,
+        coerce: this.parseNumber
+      })
+
+      .option('can-id-remote', {
+        description: 'CAN-ID for messages from remote to MCU',
+        type: 'string',
+        default: CAN_ID_REMOTE_TO_MCU_DEFAULT,
+        requiresArg: true,
+        coerce: this.parseNumber
       })
 
       .help()
@@ -134,9 +150,7 @@ class FlashApp {
     this.readDataArr = [];
 
     this.can = socketcan.createRawChannel(this.args.iface, true);
-
     this.can.addListener('onMessage', this.handleCanMsg.bind(this));
-
     this.can.start();
 
     console.log(`Waiting for bootloader start message for MCU ID ${this.hexString(this.args.mcuid, 4)} ...`);
@@ -144,7 +158,7 @@ class FlashApp {
 
   handleCanMsg (msg) {
     if (msg.data.length !== 8) return;
-    if (msg.id !== CAN_ID_MCU_TO_REMOTE) return;
+    if (msg.id !== this.args.canIdMcu) return;
 
     const mcuid = msg.data[CAN_DATA_BYTE_MCU_ID_LSB] + (msg.data[CAN_DATA_BYTE_MCU_ID_MSB] << 8);
 
@@ -177,7 +191,7 @@ class FlashApp {
             console.log('Got bootloader start, entering flash mode ...');
             this.flashStartTs = Date.now();
             this.can.send({
-              id: CAN_ID_REMOTE_TO_MCU,
+              id: this.args.canIdRemote,
               ext: true,
               rtr: false,
               data: Buffer.from([
@@ -199,7 +213,7 @@ class FlashApp {
               console.log('Got flash ready message, reading flash ...');
               this.state = STATE_READING;
               this.can.send({
-                id: CAN_ID_REMOTE_TO_MCU,
+                id: this.args.canIdRemote,
                 ext: true,
                 rtr: false,
                 data: Buffer.from([
@@ -216,7 +230,7 @@ class FlashApp {
             } else if (this.doErase) {
               console.log('Got flash ready message, erasing flash ...');
               this.can.send({
-                id: CAN_ID_REMOTE_TO_MCU,
+                id: this.args.canIdRemote,
                 ext: true,
                 rtr: false,
                 data: Buffer.from([
@@ -336,7 +350,7 @@ class FlashApp {
               }
               // request next address
               this.can.send({
-                id: CAN_ID_REMOTE_TO_MCU,
+                id: this.args.canIdRemote,
                 ext: true,
                 rtr: false,
                 data: Buffer.from([
@@ -402,7 +416,7 @@ class FlashApp {
 
     // request next address
     this.can.send({
-      id: CAN_ID_REMOTE_TO_MCU,
+      id: this.args.canIdRemote,
       ext: true,
       rtr: false,
       data: Buffer.from([
@@ -443,7 +457,7 @@ class FlashApp {
   sendStartApp () {
     console.log('Starting the app on the MCU ...');
     this.can.send({
-      id: CAN_ID_REMOTE_TO_MCU,
+      id: this.args.canIdRemote,
       ext: true,
       rtr: false,
       data: Buffer.from([
@@ -473,7 +487,7 @@ class FlashApp {
           // we want to verify... send flash done verify and set own state to read
           this.state = STATE_READING;
           this.can.send({
-            id: CAN_ID_REMOTE_TO_MCU,
+            id: this.args.canIdRemote,
             ext: true,
             rtr: false,
             data: Buffer.from([
@@ -491,7 +505,7 @@ class FlashApp {
         } else {
           // we don't want to verify... send flash done to start the app
           this.can.send({
-            id: CAN_ID_REMOTE_TO_MCU,
+            id: this.args.canIdRemote,
             ext: true,
             rtr: false,
             data: Buffer.from([
@@ -519,7 +533,7 @@ class FlashApp {
       // need to set the address to flash...
       console.log(`Setting flash address to ${this.hexString(this.curAddr, 4)} ...`);
       this.can.send({
-        id: CAN_ID_REMOTE_TO_MCU,
+        id: this.args.canIdRemote,
         ext: true,
         rtr: false,
         data: Buffer.from([
@@ -565,7 +579,7 @@ class FlashApp {
     // send data
     console.log(`Sending flash data ${this.hexString(this.curAddr, 4)} ...`);
     this.can.send({
-      id: CAN_ID_REMOTE_TO_MCU,
+      id: this.args.canIdRemote,
       ext: true,
       rtr: false,
       data: data
