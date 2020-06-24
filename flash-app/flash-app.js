@@ -1,3 +1,15 @@
+#!/usr/bin/env node
+
+/*
+ * MCP-CAN-Boot Flash-App
+ *
+ * Flash application for MCP-CAN-Boot, a CAN bus bootloader for
+ * AVR microcontrollers attached to an MCP2515 CAN controller.
+ *
+ * Copyright (C) 2020 Peter Müller <peter@crycode.de> (https://crycode.de)
+ * License: CC BY-NC-SA 4.0
+ */
+
 const fs = require('fs');
 const yargs = require('yargs');
 const socketcan = require('socketcan');

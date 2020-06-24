@@ -53,10 +53,16 @@ The remote application for flashing the MCU using the CAN bus is written in [Nod
 
 The flash-app is also available on *npm* as `mcp-can-boot-flash-app`.
 
-No need to install: Just run the flash-app using `npx`:
+No need to install: Just run the flash-app using `npx` (this will take a moment):
 
 ```
 npx mcp-can-boot-flash-app [...]
+```
+
+Or install it globally and run it if you need it more often:
+```
+npm install -g mcp-can-boot-flash-app
+mcp-can-boot-flash-app [...]
 ```
 
 ### Flash-App parameters

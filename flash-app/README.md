@@ -20,10 +20,16 @@ More information about the bootloader are available in the official repository: 
 
 ## Usage
 
-No need to install: Just run the flash-app using `npx`:
+No need to install: Just run the flash-app using `npx` (this will take a moment):
 
 ```
 npx mcp-can-boot-flash-app [...]
+```
+
+Or install it globally and run it if you need it more often:
+```
+npm install -g mcp-can-boot-flash-app
+mcp-can-boot-flash-app [...]
 ```
 
 ## Flash-App parameters

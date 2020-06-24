@@ -1,6 +1,6 @@
 {
   "name": "mcp-can-boot-flash-app",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Flash application for the MCP-CAN-Boot CAN bus bootloader",
   "main": "flash-app.js",
   "bin": {
