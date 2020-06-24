@@ -62,4 +62,4 @@ Flash-App:
     - cd flash-app
     - npm install
     - npm run lint
-    - nom pack
+    - npm pack
