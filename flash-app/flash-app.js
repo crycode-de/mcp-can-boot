@@ -1,34 +1,32 @@
 const fs = require('fs');
-const path = require('path');
 const yargs = require('yargs');
 const socketcan = require('socketcan');
 const MemoryMap = require('nrf-intel-hex');
 
 const BOOTLOADER_CMD_VERSION = 0x01;
 
-const CAN_DATA_BYTE_MCU_ID_MSB   = 0
-const CAN_DATA_BYTE_MCU_ID_LSB   = 1
-const CAN_DATA_BYTE_CMD          = 2
-const CAN_DATA_BYTE_LEN_AND_ADDR = 3
+const CAN_DATA_BYTE_MCU_ID_MSB   = 0;
+const CAN_DATA_BYTE_MCU_ID_LSB   = 1;
+const CAN_DATA_BYTE_CMD          = 2;
+const CAN_DATA_BYTE_LEN_AND_ADDR = 3;
 
-const CAN_ID_MCU_TO_REMOTE_DEFAULT = 0x1FFFFF01
-const CAN_ID_REMOTE_TO_MCU_DEFAULT = 0x1FFFFF02
+const CAN_ID_MCU_TO_REMOTE_DEFAULT = 0x1FFFFF01;
+const CAN_ID_REMOTE_TO_MCU_DEFAULT = 0x1FFFFF02;
 
-const CMD_ERROR                    = 0b00000001
-const CMD_BOOTLOADER_START         = 0b00000010
-const CMD_FLASH_INIT               = 0b00000110 // remote -> mcu
-const CMD_FLASH_READY              = 0b00000100 // mcu -> remote
-const CMD_FLASH_SET_ADDRESS        = 0b00001010 // remote -> mcu
-const CMD_FLASH_ADDRESS_ERROR      = 0b00001011 // mcu -> remote
-const CMD_FLASH_DATA               = 0b00001000 // remote -> mcu
-const CMD_FLASH_DATA_ERROR         = 0b00001101 // mcu -> remote
-const CMD_FLASH_DONE               = 0b00010000 // remote -> mcu
-const CMD_FLASH_DONE_VERIFY        = 0b01010000 // remote <-> mcu
-const CMD_FLASH_ERASE              = 0b00100000 // remote -> mcu
-const CMD_FLASH_READ               = 0b01000000 // remote -> mcu
-const CMD_FLASH_READ_DATA          = 0b01001000 // mcu -> remote
-const CMD_FLASH_READ_ADDRESS_ERROR = 0b01001011 // mcu -> remote
-const CMD_START_APP                = 0b10000000 // mcu <-> remote
+const CMD_BOOTLOADER_START         = 0b00000010;
+const CMD_FLASH_INIT               = 0b00000110; // remote -> mcu
+const CMD_FLASH_READY              = 0b00000100; // mcu -> remote
+const CMD_FLASH_SET_ADDRESS        = 0b00001010; // remote -> mcu
+const CMD_FLASH_ADDRESS_ERROR      = 0b00001011; // mcu -> remote
+const CMD_FLASH_DATA               = 0b00001000; // remote -> mcu
+const CMD_FLASH_DATA_ERROR         = 0b00001101; // mcu -> remote
+const CMD_FLASH_DONE               = 0b00010000; // remote -> mcu
+const CMD_FLASH_DONE_VERIFY        = 0b01010000; // remote <-> mcu
+const CMD_FLASH_ERASE              = 0b00100000; // remote -> mcu
+const CMD_FLASH_READ               = 0b01000000; // remote -> mcu
+const CMD_FLASH_READ_DATA          = 0b01001000; // mcu -> remote
+const CMD_FLASH_READ_ADDRESS_ERROR = 0b01001011; // mcu -> remote
+const CMD_START_APP                = 0b10000000; // mcu <-> remote
 
 const STATE_INIT     = 0;
 const STATE_FLASHING = 1;
@@ -178,13 +176,14 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
 
     // the message is for this bootloader session
 
+    let byteCount, addrPart;
     switch (this.state) {
       case STATE_INIT:
         switch (msg.data[CAN_DATA_BYTE_CMD]) {
           case CMD_BOOTLOADER_START:
             // check device signature
             if (msg.data[4] !== this.deviceSignature[0] || msg.data[5] !== this.deviceSignature[1] || msg.data[6] !== this.deviceSignature[2]) {
-              console.log(`Error: Got bootloader start message but device signature missmatched!`);
+              console.log('Error: Got bootloader start message but device signature missmatched!');
               console.log(`Expected ${this.hexString(this.deviceSignature[0])} ${this.hexString(this.deviceSignature[1])} ${this.hexString(this.deviceSignature[2])} for ${this.args.partno}, got ${this.hexString(msg.data[4])} ${this.hexString(msg.data[5])} ${this.hexString(msg.data[6])}`);
               return;
             }
@@ -285,10 +284,10 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
             break;
 
           case CMD_FLASH_READY:
-            const bytesFlashed = (msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
-            //console.log(`${bytesFlashed} bytes flashed`);
-            this.curAddr += bytesFlashed;
-            this.memMapCurrentDataIdx += bytesFlashed;
+            byteCount = (msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
+            //console.log(`${byteCount} bytes flashed`);
+            this.curAddr += byteCount;
+            this.memMapCurrentDataIdx += byteCount;
             this.onFlashReady(msg.data);
             break;
 
@@ -319,10 +318,10 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
             break;
 
           case CMD_FLASH_READ_DATA:
-            const bytesRead = (msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
-            const readAddrPart = msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] & 0b00011111;
+            byteCount = (msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
+            addrPart = msg.data[CAN_DATA_BYTE_LEN_AND_ADDR] & 0b00011111;
 
-            if (this.curAddr & 0b00011111 !== readAddrPart) {
+            if (this.curAddr & 0b00011111 !== addrPart) {
               console.log('Got an unexpected address of read data from MCU!');
               console.log('Will now abort and exit the bootloader ...');
               this.sendStartApp();
@@ -333,7 +332,7 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
 
             if (this.doVerify) {
               // verify flash
-              for (let i = 0; i < bytesRead; i++) {
+              for (let i = 0; i < byteCount; i++) {
                 if (this.memMap.get(this.memMapCurrentKey)[this.memMapCurrentDataIdx] !== undefined
                   && this.memMap.get(this.memMapCurrentKey)[this.memMapCurrentDataIdx] !== msg.data[4+i]) {
                   console.log(`ERROR: Verify failed at ${this.hexString(this.curAddr)}!`);
@@ -350,7 +349,7 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
             } else {
               // read whole flash
               // cache the data
-              for (let i = 0; i < bytesRead; i++) {
+              for (let i = 0; i < byteCount; i++) {
                 this.readDataArr.push(msg.data[4+i]);
                 this.curAddr++;
               }
@@ -385,7 +384,7 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
             // we hit the end of the flash
             if (this.doVerify) {
               // hitting the end at verify must be an error...
-              console.log(`ERROR: Reading flash failed during verify!`);
+              console.log('ERROR: Reading flash failed during verify!');
               this.sendStartApp();
               return;
             } else {

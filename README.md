@@ -51,11 +51,13 @@ The first four bytes are used for MCU identification, commands, data lengths and
 
 The remote application for flashing the MCU using the CAN bus is written in [Node.js](https://nodejs.org/) and located in the `flash-app` directory.
 
-The flash-app requires a CAN interface at the system where it should run. This may be a Raspberry Pi with an attached MCP2515 CAN controller.
+The flash-app is also available on *npm* as `mcp-can-boot-flash-app`.
 
-To install the dependencies for the flash-app just run `npm install` in the `flash-app` directory.
+No need to install: Just run the flash-app using `npx`:
 
-To run the flash-app just call `node flash-app.js [...]`.
+```
+npx mcp-can-boot-flash-app [...]
+```
 
 ### Flash-App parameters
 

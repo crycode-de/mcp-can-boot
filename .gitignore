@@ -9,4 +9,6 @@ include
 lib
 test
 flash-app/node_modules/
+flash-app/*.tgz
+flash-app/*.log
 build.log

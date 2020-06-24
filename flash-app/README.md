@@ -11,7 +11,7 @@ More information about the bootloader are available in the official repository: 
 
 ## Requirements
 
-* Node.js version 10 or higher.
+* Node.js version 10.12.x or higher.
 
 * The system where the flash-app is run needs a CAN interface to which the target MCU is connected.
 

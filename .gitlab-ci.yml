@@ -49,3 +49,16 @@ ATmega2560:
   <<: *pio_run
   variables:
     PLATFORMIO_CI_EXTRA_ARGS: '-e ATmega2560'
+
+Flash-App:
+  image: node:10
+    artifacts:
+      name: "$CI_JOB_NAME"
+      expire_in: 4 weeks
+      paths:
+        - flash-app/*.tgz
+  script:
+    - cd flash-app
+    - npm install
+    - npm run lint
+    - nom pack
