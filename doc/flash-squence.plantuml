@@ -1,0 +1,33 @@
+@startuml
+skinparam {
+  ArrowColor #555555
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #eeeeee
+  ParticipantBorderThickness 1
+  LifeLineBorderColor #cccccc
+  monochrome true
+  shadowing false
+}
+
+Bootloader -> "Flash-App" : Bootloader start
+Bootloader <-- "Flash-App" : Flash init
+Bootloader -> "Flash-App" : Flash ready (0x0000)
+Bootloader <-- "Flash-App" : Flash data (4 bytes)
+Bootloader -> "Flash-App" : Flash ready (0x0004)
+Bootloader <-- "Flash-App" : Flash data (4 bytes)
+Bootloader -> "Flash-App" : Flash ready (0x0008)
+... transmit all flash data ...
+Bootloader <-- "Flash-App" : Flash data (2 bytes)
+Bootloader -> "Flash-App" : Flash ready (0x1F42)
+Bootloader <-- "Flash-App" : Flash done verify
+Bootloader -> "Flash-App" : Flash done verify
+Bootloader <-- "Flash-App" : Flash read (0x0000)
+Bootloader -> "Flash-App" : Flash read data (4 bytes)
+Bootloader <-- "Flash-App" : Flash read (0x0004)
+Bootloader -> "Flash-App" : Flash read data (4 bytes)
+... read all flash data ...
+Bootloader <-- "Flash-App" : Flash read (0x1F40)
+Bootloader -> "Flash-App" : Flash read data (4 bytes)
+Bootloader <-- "Flash-App" : Start app
+Bootloader -> "Flash-App" : Start app
+@enduml
