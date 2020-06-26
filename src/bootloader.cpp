@@ -289,18 +289,18 @@ int main () {
 
             // data length can be up to 4 bytes
             uint8_t len = (canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
+            if ((flashAddr + len - 1) > FLASHEND_BL) {
+              // address cannot be flashed
+              canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_ADDRESS_ERROR;
+              canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
+              canMsg.data[4] = ((uint32_t)FLASHEND_BL >> 24) & 0xFF;
+              canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
+              canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
+              canMsg.data[7] = FLASHEND_BL & 0xFF;
+              mcp2515.sendMessage(&canMsg);
+              continue;
+            }
             for (uint8_t i = 0; i < len; i++) {
-              if (flashAddr > FLASHEND_BL) {
-                // address cannot be flashed
-                canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_ADDRESS_ERROR;
-                canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-                canMsg.data[4] = ((uint32_t)FLASHEND_BL >> 24) & 0xFF;
-                canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
-                canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
-                canMsg.data[7] = FLASHEND_BL & 0xFF;
-                mcp2515.sendMessage(&canMsg);
-                continue;
-              }
               flashBuffer[flashBufferPos++] = canMsg.data[4 + i];
               flashBufferDataCount++;
               flashAddr++;
