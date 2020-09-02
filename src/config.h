@@ -50,6 +50,7 @@
 
 /**
  * Optional definition of a custom CS (chip select) pin for the MCP2515.
+ * If not defined, the default SPI_SS pin will be used for chip select.
  */
 //#define MCP_CS      PORTB0
 //#define MCP_CS_DDR  DDRB
