@@ -21,12 +21,32 @@ const struct MCP2515::RXBn_REGS MCP2515::RXB[N_RXBUFFERS] = {
     {MCP_RXB1CTRL, MCP_RXB1SIDH, MCP_RXB1DATA, CANINTF_RX1IF}
 };
 
+
+
 MCP2515::MCP2515 () { }
 
 void MCP2515::init () {
 
   // set spi pins as output
-  SPI_DDR = ((1<<SPI_SS) | (1<<SPI_MOSI) | (1<<SPI_SCK));
+  #if !defined(MCP_CS) || defined(SET_SPI_SS_OUTPUT)
+    SPI_DDR |= ((1<<SPI_SS) | (1<<SPI_MOSI) | (1<<SPI_SCK));
+  #else
+    SPI_DDR |= ((1<<SPI_MOSI) | (1<<SPI_SCK));
+  #endif
+
+  // set custom CS pin as output if used
+  #ifdef MCP_CS
+    MCP_CS_DDR |= (1 << MCP_CS);
+
+    // set SPI_SS to defined level if used
+    #ifdef SET_SPI_SS_OUTPUT
+      #if SET_SPI_SS_OUTPUT == HIGH
+        SPI_PORT |= (1 << SPI_SS);
+      #else
+        SPI_PORT &= ~(1 << SPI_SS);
+      #endif
+    #endif
+  #endif
 
   // setup spi
   #if F_CPU < 4000000L
@@ -45,15 +65,27 @@ void MCP2515::init () {
     SPSR = (1<<SPI2X);
   #endif
 
-  SPI_PORT |= (1 << SPI_SS); // set SS high
+  #ifdef MCP_CS
+    MCP_CS_PORT |= (1 << MCP_CS); // set custom CS high
+  #else
+    SPI_PORT |= (1 << SPI_SS); // set SS high
+  #endif
 }
 
 void MCP2515::startSPI () {
-  SPI_PORT &= ~(1 << SPI_SS); // set SS low
+  #ifdef MCP_CS
+    MCP_CS_PORT &= ~(1 << MCP_CS); // set custom CS low
+  #else
+    SPI_PORT &= ~(1 << SPI_SS); // set SS low
+  #endif
 }
 
 void MCP2515::endSPI () {
-  SPI_PORT |= (1 << SPI_SS); // set SS high
+  #ifdef MCP_CS
+    MCP_CS_PORT |= (1 << MCP_CS); // set custom CS high
+  #else
+    SPI_PORT |= (1 << SPI_SS); // set SS high
+  #endif
 }
 
 uint8_t MCP2515::transfer (uint8_t data) {

@@ -49,6 +49,22 @@
 #define MCP_CLOCK MCP_16MHZ
 
 /**
+ * Optional definition of a custom CS (chip select) pin for the MCP2515.
+ */
+//#define MCP_CS      PORTB0
+//#define MCP_CS_DDR  DDRB
+//#define MCP_CS_PORT PORTB
+
+/**
+ * When using a custom CS pin, then it must be ensured that the SPI_SS pin is
+ * defined as an output or externally pulled high. Otherwise the bootloader may
+ * be unresponding because the controller may enter SPI slave mode.
+ * Use the following definition to set SPI_SS as an output (if a custom CS pin
+ * is used) with the given value (HIGH or LOW).
+ */
+//#define SET_SPI_SS_OUTPUT HIGH
+
+/**
  * CAN-ID for bootloader message from MCU to remote.
  */
 #define CAN_ID_MCU_TO_REMOTE 0x1FFFFF01UL

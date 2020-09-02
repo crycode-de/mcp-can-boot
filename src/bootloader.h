@@ -66,4 +66,23 @@ void writeFlashPage ();
 void boot_program_page (uint16_t page, uint8_t *buf);
 void startApp ();
 
+/*
+ * Definition checks
+ */
+#ifdef LED
+  #if !defined(LED_DDR) || !defined(LED_PORT)
+    #error When using LED, also LED_DDR and LED_PORT must be defined!
+  #endif
+#endif
+
+#ifdef MCP_CS
+  #if !defined(MCP_CS_DDR) || !defined(MCP_CS_PORT)
+    #error When using MCP_CS, also MCP_CS_DDR and MCP_CS_PORT must be defined!
+  #endif
+
+  #ifndef SET_SPI_SS_OUTPUT
+    #warning You are using a custom CS pin and SPI_SS is not defined as an output which may lead to an unresponding bootloader. Please check config.h for SET_SPI_SS_OUTPUT or make sure your hardware will pull up SPI_SS externally.
+  #endif
+#endif
+
 #endif
