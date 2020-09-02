@@ -12,6 +12,7 @@
 
 #include <inttypes.h>
 #include <avr/boot.h>
+#include <avr/eeprom.h>
 #include <avr/wdt.h>
 
 #include "mcp2515.h"
@@ -54,8 +55,8 @@
 /*
  * Fixed definitions to be used in the code.
  */
-#define MCU_ID_LSB (MCU_ID & 0xFF)
-#define MCU_ID_MSB ((MCU_ID >> 8) & 0xFF)
+#define MCU_ID_LSB (mcuId & 0xFF)
+#define MCU_ID_MSB ((mcuId >> 8) & 0xFF)
 #define FLASHEND_BL (FLASHEND - BOOTLOADER_SIZE)
 
 /*

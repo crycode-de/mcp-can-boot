@@ -22,9 +22,13 @@
 
 /**
  * The ID of the MCU to identify it in bootloader CAN messages.
+ * You may use a fixed value or an expressions to get the ID from the EEPROM
+ * which allows you to change the ID by your main application.
  * Range: 0x0000 to 0xFFFF
  */
 #define MCU_ID 0x0042
+//#define MCU_ID eeprom_read_word((uint16_t*) 0x00)
+//#define MCU_ID eeprom_read_byte((uint8_t*) 0x00)
 
 /**
  * Timeout for the bootloader in milliseconds.

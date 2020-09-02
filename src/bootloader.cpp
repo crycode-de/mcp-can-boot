@@ -102,6 +102,9 @@ int main () {
 
   mcp2515.setNormalMode();
 
+  // set own mcu ID as a variable which enables mcu ID to be read from eeprom
+  uint16_t mcuId = MCU_ID;
+
   // send bootloader start message
   canMsg.can_id = CAN_ID_MCU_TO_REMOTE | CAN_EFF_FLAG;
   canMsg.can_dlc = 8;
