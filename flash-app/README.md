@@ -45,6 +45,8 @@ mcp-can-boot-flash-app [...]
                  with maximum address to read until                   [string]
 -F               Force flashing, even if the bootloader version missmatched
                                                                      [boolean]
+--reset, -R      CAN message to send on startup to reset the MCU
+                 (<can_id>#{hex_data})                                [string]
 --can-id-mcu     CAN-ID for messages from MCU to remote
                                                 [string] [default: 0x1FFFFF01]
 --can-id-remote  CAN-ID for messages from remote to MCU
@@ -52,9 +54,11 @@ mcp-can-boot-flash-app [...]
 --help, -h       Show help                                           [boolean]
 ```
 
-Example:
+Examples:
 ```
 npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042
+npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042 --reset 020040FF#4201FA
+npx mcp-can-boot-flash-app -r -f - -p m328p -m 0x0042
 ```
 
 

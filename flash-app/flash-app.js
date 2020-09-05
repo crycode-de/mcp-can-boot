@@ -104,6 +104,13 @@ class FlashApp {
         type: 'boolean'
       })
 
+      .option('reset', {
+        alias: 'R',
+        description: 'CAN message to send on startup to reset the MCU (<can_id>#{hex_data})',
+        type: 'string',
+        requiresArg: true,
+      })
+
       .option('can-id-mcu', {
         description: 'CAN-ID for messages from MCU to remote',
         type: 'string',
@@ -130,6 +137,7 @@ Flash application for MCP-CAN-Boot, a CAN bus bootloader for AVR microcontroller
 
 https://git.cryhost.de/crycode/mcp-can-boot`)
       .example('$0 -f firmware.hex -p m1284p -m 0x0042')
+      .example('$0 -f firmware.hex -p m1284p -m 0x0042 --reset 020040FF#4201FA')
       .example('$0 -r -f - -p m328p -m 0x0042')
       .argv;
 
@@ -174,6 +182,35 @@ https://git.cryhost.de/crycode/mcp-can-boot`)
     this.can = socketcan.createRawChannel(this.args.iface, true);
     this.can.addListener('onMessage', this.handleCanMsg.bind(this));
     this.can.start();
+
+    // send can message to reset the mcu?
+    if (this.args.reset) {
+      const [canIdStr, dataStr] = this.args.reset.split('#');
+
+      const canId = parseInt(canIdStr, 16);
+      if ((canIdStr.length !== 3 && canIdStr.length !== 8) || isNaN(canId)) {
+        console.log(`Reset message format error!\nThe can_id is not valid. A three digits standard frame or eight digits extended frame hex id must be provided.`);
+        process.exit(1);
+      }
+
+      const data = dataStr ? dataStr.match(/../g).map((d) => {
+        const n = parseInt(d, 16);
+        if (isNaN(n)) {
+          console.log(`Reset message format error!\nThe data bytes must be provided as hex numbers.`);
+          process.exit(1);
+        }
+        return n;
+      }) : [];
+
+      this.can.send({
+        id: canId,
+        ext: (canIdStr.length > 3),
+        rtr: false,
+        data: Buffer.from(data)
+      });
+
+      console.log(`Reset message send to the MCU.`);
+    }
 
     console.log(`Waiting for bootloader start message for MCU ID ${this.hexString(this.args.mcuid, 4)} ...`);
   }
