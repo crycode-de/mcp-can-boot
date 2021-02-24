@@ -42,7 +42,7 @@ jobs:
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: build-files
+        name: build-${{ matrix.pio-env }}
         path: |
           .pio/build/*/firmware.hex
           .pio/build/*/firmware.map
