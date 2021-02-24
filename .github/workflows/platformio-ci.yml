@@ -36,7 +36,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade platformio
 
-    - name: Run PlatformIO for ${{ matrix.build-type }}
+    - name: Run PlatformIO for ${{ matrix.pio-env }}
       run: pio run -e ${{ matrix.pio-env }}
 
     - name: Archive build artifacts
