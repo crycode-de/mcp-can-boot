@@ -48,7 +48,7 @@ The first four bytes are used for MCU identification, commands, data lengths and
 
 ## Flash-App
 
-The remote application for flashing the MCU using the CAN bus is written in [Node.js](https://nodejs.org/) and located in the `flash-app` directory.
+The remote application for flashing the MCU using the CAN bus is written in [Node.js](https://nodejs.org/) and located in the [mcp-can-boot-flash-app repository](https://github.com/crycode-de/mcp-can-boot-flash-app).
 
 The flash-app is also available on *npm* as `mcp-can-boot-flash-app`.
 
