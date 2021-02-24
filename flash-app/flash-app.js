@@ -6,7 +6,7 @@
  * Flash application for MCP-CAN-Boot, a CAN bus bootloader for
  * AVR microcontrollers attached to an MCP2515 CAN controller.
  *
- * Copyright (C) 2020 Peter Müller <peter@crycode.de> (https://crycode.de)
+ * Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> (https://crycode.de)
  * License: CC BY-NC-SA 4.0
  */
 
@@ -135,7 +135,7 @@ class FlashApp {
 = MCP-CAN-Boot Flash-App =
 Flash application for MCP-CAN-Boot, a CAN bus bootloader for AVR microcontrollers attached to an MCP2515 CAN controller.
 
-https://git.cryhost.de/crycode/mcp-can-boot`)
+https://github.com/crycode-de/mcp-can-boot`)
       .example('$0 -f firmware.hex -p m1284p -m 0x0042')
       .example('$0 -f firmware.hex -p m1284p -m 0x0042 --reset 020040FF#4201FA')
       .example('$0 -r -f - -p m328p -m 0x0042')

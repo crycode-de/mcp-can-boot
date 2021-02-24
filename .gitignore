@@ -4,6 +4,8 @@
 .clang_complete
 .gcc-flags.json
 .travis.yml
+.vscode/c_cpp_properties.json
+.vscode/launch.json
 **/node_modules
 include
 lib

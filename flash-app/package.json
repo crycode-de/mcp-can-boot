@@ -1,6 +1,6 @@
 {
   "name": "mcp-can-boot-flash-app",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Flash application for the MCP-CAN-Boot CAN bus bootloader",
   "main": "flash-app.js",
   "bin": {
@@ -11,13 +11,13 @@
     "email": "peter@crycode.de",
     "url": "https://crycode.de/"
   },
-  "homepage": "https://git.cryhost.de/crycode/mcp-can-boot",
+  "homepage": "https://github.com/crycode-de/mcp-can-boot",
   "repository": {
     "type": "git",
-    "url": "https://git.cryhost.de/crycode/mcp-can-boot.git"
+    "url": "https://github.com/crycode-de/mcp-can-boot.git"
   },
   "bugs": {
-    "url": "https://git.cryhost.de/crycode/mcp-can-boot/-/issues"
+    "url": "https://github.com/crycode-de/mcp-can-boot/issues"
   },
   "keywords": [
     "mcp2515",

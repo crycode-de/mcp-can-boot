@@ -4,10 +4,10 @@
 
 CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN controller.
 
-[![pipeline status](https://git.cryhost.de/crycode/mcp-can-boot/badges/master/pipeline.svg)](https://git.cryhost.de/crycode/mcp-can-boot/-/commits/master)
-
+**Tests:** ![Test and Release](https://github.com/crycode-de/mcp-can-boot/workflows/PlatformIO%20CI/badge.svg)
 
 ## Supported features
+
 * Flash the main application into a MCU (microcontroller unit)
 * Verify after flashing
 * Read the whole flash (excluding the bootloader area)
@@ -16,8 +16,8 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * Correctly handled disabling of the watchdog at startup to prevent bootloader loops when using the watchdog in the main application
 * Very low impact on active CAN systems which enables to flash MCUs in active networks
 
-
 ## Currently supported AVR controllers
+
 * [ATmega32](http://ww1.microchip.com/downloads/en/devicedoc/doc2503.pdf)
 * [ATmega328P](http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
 * [ATmega64](http://ww1.microchip.com/downloads/en/DeviceDoc/atmel-2490-8-bit-avr-microcontroller-atmega64-l_datasheet.pdf)
@@ -26,18 +26,18 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * [ATmega1284P](https://ww1.microchip.com/downloads/en/DeviceDoc/doc8059.pdf)
 * [ATmega2560](https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf)
 
-
 ## Bootloader size
+
 This bootloader will fit into a 2048 words (4096 bytes) bootloader section.
 
 The fuse bits of the MCU have to be set correctly to a boot flash section size of 2048 words and the boot reset vector must be enabled (BOOTRST=0).
-
 
 ## CAN bus communication
 
 The whole communication via the CAN bus uses only two extended frame CAN-IDs.
 
 *Defaults:*
+
 * `0x1FFFFF01` for messages from MCU to remote
 * `0x1FFFFF02` for messages from remote to MCU
 
@@ -45,7 +45,6 @@ Using this two IDs nearly at the end of CAN-ID range with the lowest priority th
 
 Each CAN message consists of fixed eight data bytes.
 The first four bytes are used for MCU identification, commands, data lengths and data identification. The other four bytes contain the data to read or write.
-
 
 ## Flash-App
 
@@ -60,6 +59,7 @@ npx mcp-can-boot-flash-app [...]
 ```
 
 Or install it globally and run it if you need it more often:
+
 ```
 npm install -g mcp-can-boot-flash-app
 mcp-can-boot-flash-app [...]
@@ -86,10 +86,10 @@ mcp-can-boot-flash-app [...]
 ```
 
 Example:
+
 ```
 npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042
 ```
-
 
 ## Detailed description of the CAN messages
 
@@ -102,26 +102,27 @@ Each CAN message has a fixed length of 8 byte. Unneeded bytes will be set to `0x
 The lower four bytes (0 to 3) are used as control bytes.
 
 #### Control byte 0 and 1
+
 These two bytes always contain the ID of the MCU (`MCU_ID` in `config.h`) to make sure the correct MCU will be flashed.
 The ID is written in big-endian format, so byte 0 is the MSB and byte 1 the LSB.
 
 #### Control byte 2
+
 The command which is used to identify the type of message.
 The commands are described below.
 
 #### Control byte 3
+
 Used to store the amount of the data bytes of the message and a part of the current flash address for verification.
 Therefor the three bits 5 to 7 of this byte represent the data length (zero to four bytes) and the bits 0 to 4 are the lower five bits of the current flash address.
 This byte will only be used in some commands and otherwise it will be set to `0x00`.
 
 ![Bits of byte 3](./doc/bits-of-byte-3.png)
 
-
 ### Data bytes
 
 The four data bytes 4 to 7 are set depending on the command.
 If they contain flash data the byte 3 of the CAN message will be set accordingly.
-
 
 ### Commands
 
@@ -154,7 +155,6 @@ Data byte 7 is set to the command set version of the bootloader to make sure boo
 
 After this message is send by the MCU the bootloader waits a limited amount of time (default 250ms, configurable via `TIMEOUT` in `config.h`) for the *flash init* command.
 It no *flash init* is received the bootloader will start main application.
-
 
 #### Flash init
 
@@ -267,10 +267,9 @@ If the bootloader is starting the main application without entering flashing mod
 
 Additionally a *start app* command may be send at any time by the flash application to the bootloader while the bootloader is in flashing mode. This will stop the flashing process without writing anything else to the flash and start the main application.
 
-
 ### Communication example
- ![Communication example](./doc/flash-sequence.svg)
 
+![Communication example](./doc/flash-sequence.svg)
 
 ## Used frameworks and libraries
 
@@ -280,11 +279,10 @@ It uses parts of the [Arduino](https://www.arduino.cc/) framework.
 
 For controlling the MCP2515 a modified version of the [Arduino MCP2515 CAN interface library](https://github.com/autowp/arduino-mcp2515) is used.
 
-
 ## License
 
 **CC BY-NC-SA 4.0**
 
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Copyright (C) 2020 Peter Müller <peter@crycode.de> (https://crycode.de)
+Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> [https://crycode.de](https://crycode.de)

@@ -3,7 +3,7 @@
  *
  * CAN bus bootloader for AVR microcontrollers attached to an MCP2515 CAN controller.
  *
- * Copyright (C) 2020 Peter Müller <peter@crycode.de> (https://crycode.de)
+ * Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> (https://crycode.de)
  * License: CC BY-NC-SA 4.0
  *
  * Configuration
@@ -13,7 +13,7 @@
 #define	__MCP_CAN_BOOT_CONFIG_H__
 
 /**
- * Optional definition of a LED port, which will be used to indecate
+ * Optional definition of a LED port, which will be used to indicate
  * bootloader actions.
  */
 //#define LED      PORTA1
