@@ -50,6 +50,15 @@ void get_mcusr(void) {
   #if defined(MCUCSR)
     MCUCSR = 0;
   #else
+  /* The MCU Status Register provides information on which reset
+   * source caused an MCU reset.
+   * 0x01 Power-on
+   * 0x02 External
+   * 0x04 Brown-out
+   * 0x08 Watchdog
+   * 0x10 JTAG
+   */
+    GPIOR0 = MCUSR; /* store MCUSR in to General Purpose I/O Register 0 */
     MCUSR = 0;
   #endif
   wdt_disable();
