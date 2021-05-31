@@ -32,6 +32,16 @@ This bootloader will fit into a 2048 words (4096 bytes) bootloader section.
 
 The fuse bits of the MCU have to be set correctly to a boot flash section size of 2048 words and the boot reset vector must be enabled (BOOTRST=0).
 
+## Flashing the bootloader
+
+To flash the _MCP-CAN-Boot_ bootloader you need to use an ISP programmer.
+
+Make sure to set the fuse bits correctly for a 2048 words bootloader and boot resest vector enabled. Otherwise the bootloader will not work.
+
+Examples for each supported controller are in `platformio.ini` (commented out by default).  
+To set the fuse bits, enable the lines starting with `board_fuses.` for your controller. _Always check/edit the fuses values to fit your needs!_  
+If you set the correct values, you may run `pio run --target fuses` to program the fuses on your controller.
+
 ## CAN bus communication
 
 The whole communication via the CAN bus uses only two extended frame CAN-IDs.
