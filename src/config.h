@@ -39,6 +39,15 @@
 #define TIMEOUT 250
 
 /**
+ * store The MCU Status Register to General Purpose I/O Register 0
+ * The MCU Status Register provides information on which reset source
+ * caused an MCU reset.
+ * note: only for MCUSR not MCUCSR 
+ * see: https://github.com/crycode-de/mcp-can-boot/pull/2#issuecomment-851257516
+ */
+//#define MCUSR_TO_GPIOR0
+
+/**
  * Data rate of the CAN bus.
  * CAN_5KBPS, CAN_10KBPS, CAN_20KBPS, CAN_31K25BPS, CAN_33KBPS, CAN_40KBPS,
  * CAN_50KBPS, CAN_80KBPS, CAN_83K3BPS, CAN_95KBPS, CAN_100KBPS, CAN_125KBPS,
