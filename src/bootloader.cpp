@@ -48,18 +48,13 @@ MCP2515 mcp2515;
 void get_mcusr(void) __attribute__((naked)) __attribute__((used)) __attribute__((section(".init3")));
 void get_mcusr(void) {
   #if defined(MCUCSR)
+    #if MCUSR_TO_R2
+      __asm__ __volatile__("  mov r2, %0\n" ::"r"(MCUCSR));
+    #endif
     MCUCSR = 0;
   #else
-    #if MCUSR_TO_GPIOR0
-      /* The MCU Status Register provides information on which reset
-       * source caused an MCU reset.
-       * 0x01 Power-on
-       * 0x02 External
-       * 0x04 Brown-out
-       * 0x08 Watchdog
-       * 0x10 JTAG
-       */
-      GPIOR0 = MCUSR; /* store MCUSR in to General Purpose I/O Register 0 */
+    #if MCUSR_TO_R2
+      __asm__ __volatile__("  mov r2, %0\n" ::"r"(MCUSR));
     #endif
     MCUSR = 0;
   #endif

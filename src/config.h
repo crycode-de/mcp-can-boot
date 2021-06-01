@@ -39,13 +39,20 @@
 #define TIMEOUT 250
 
 /**
- * store The MCU Status Register to General Purpose I/O Register 0
+ * store The MCU Status Register to Register 2
  * The MCU Status Register provides information on which reset source
  * caused an MCU reset.
- * note: only for MCUSR not MCUCSR 
- * see: https://github.com/crycode-de/mcp-can-boot/pull/2#issuecomment-851257516
+ *
+ * [code main prog.]
+ *
+ * uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
+ * void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
+ * void getMCUSR(void)
+ * {
+ *     __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *  }
  */
-//#define MCUSR_TO_GPIOR0
+#define MCUSR_TO_R2 1
 
 /**
  * Data rate of the CAN bus.
