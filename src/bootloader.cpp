@@ -47,17 +47,15 @@ MCP2515 mcp2515;
  */
 void get_mcusr(void) __attribute__((naked)) __attribute__((used)) __attribute__((section(".init3")));
 void get_mcusr(void) {
-  #if defined(MCUCSR)
-    #if MCUSR_TO_R2
-      __asm__ __volatile__("  mov r2, %0\n" ::"r"(MCUCSR));
-    #endif
-    MCUCSR = 0;
-  #else
-    #if MCUSR_TO_R2
-      __asm__ __volatile__("  mov r2, %0\n" ::"r"(MCUSR));
-    #endif
-    MCUSR = 0;
+  #ifndef MCUSR  // Backward compatability with old AVRs
+    #define MCUSR MCUCSR
   #endif
+
+  #if MCUSR_TO_R2
+    __asm__ __volatile__("  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t"
+                         ::[reset_caused_by_val] "r" (MCUSR));
+  #endif
+  MCUSR = 0;
   wdt_disable();
 }
 
@@ -65,6 +63,11 @@ void get_mcusr(void) {
  * The main function of the bootloader.
  */
 int main () {
+  #if MCUSR_TO_R2
+    uint8_t reset_caused_by=0x00;/* MCUSR from bootloader */
+    __asm__ __volatile__("  mov %[reset_caused_by_val],r2 ;Move Between Registers \n\t"
+                         :[reset_caused_by_val] "=r" (reset_caused_by));
+  #endif
   // call init from arduino framework to setup timers
   init();
 
@@ -347,6 +350,10 @@ int main () {
             // delay for 50ms to let the mcp send the message
             delay(50);
 
+            #if MCUSR_TO_R2
+              __asm__ __volatile__("  mov r2,%[reset_caused_by_val] ;Move Between Registers \n\t"
+                         ::[reset_caused_by_val] "r" (reset_caused_by));
+            #endif
             startApp();
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DONE_VERIFY) {
@@ -378,6 +385,10 @@ int main () {
             // delay for 50ms to let the mcp send the message
             delay(50);
 
+            #if MCUSR_TO_R2
+              __asm__ __volatile__("  mov r2,%[reset_caused_by_val] ;Move Between Registers \n\t"
+                         ::[reset_caused_by_val] "r" (reset_caused_by));
+            #endif
             startApp();
           }
         }
