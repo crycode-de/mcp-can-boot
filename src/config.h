@@ -43,14 +43,20 @@
  * The MCU Status Register provides information on which reset source
  * caused an MCU reset.
  *
- * [code main prog.]
+ * paste this code into your program (not the bootloader)
+ * \code
+ *      uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
+ *      void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
+ *      void getMCUSR(void)
+ *      {
+ *          __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *       }
+ * \endcode
  *
- * uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
- * void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
- * void getMCUSR(void)
- * {
- *     __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
- *  }
+ * to use
+ * \code
+ *      mcusr;//<= the MCU Status Register (global variable)
+ * \endcode
  */
 #define MCUSR_TO_R2 1
 
