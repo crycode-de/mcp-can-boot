@@ -45,17 +45,32 @@
  *
  * paste this code into your program (not the bootloader)
  * \code
- *      uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
- *      void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
- *      void getMCUSR(void)
- *      {
- *          __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
- *       }
+ *  uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
+ *  void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
+ *  void getMCUSR(void)
+ *  {
+ *      __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *  }
  * \endcode
  *
  * to use
  * \code
- *      mcusr;//<= the MCU Status Register (global variable)
+ *  mcusr;//<= the MCU Status Register (global variable)
+ * \endcode
+ *
+ * or
+ *
+ * \code
+ *  void main()
+ *  {
+ *      uint8_t mcusr;
+ *      __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *  }
+ * \endcode
+ *
+ * to use
+ * \code
+ *  mcusr;//<= the MCU Status Register (local variable in function main)
  * \endcode
  */
 #define MCUSR_TO_R2 1
