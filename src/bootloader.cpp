@@ -47,15 +47,21 @@ MCP2515 mcp2515;
  */
 void get_mcusr(void) __attribute__((naked)) __attribute__((used)) __attribute__((section(".init3")));
 void get_mcusr(void) {
-  #ifndef MCUSR  // Backward compatability with old AVRs
-    #define MCUSR MCUCSR
-  #endif
-
+#if defined(MCUCSR)
   #if MCUSR_TO_R2
-    __asm__ __volatile__("  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t"
-                         ::[reset_caused_by_val] "r" (MCUSR));
+    __asm__ __volatile__(
+        "  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t" 
+        ::[reset_caused_by_val] "r"(MCUCSR));
+  #endif
+  MCUCSR = 0;
+#else
+  #if MCUSR_TO_R2
+    __asm__ __volatile__(
+        "  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t"
+        ::[reset_caused_by_val] "r"(MCUSR));
   #endif
   MCUSR = 0;
+#endif
   wdt_disable();
 }
 
