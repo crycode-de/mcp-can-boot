@@ -101,6 +101,23 @@ Example:
 npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042
 ```
 
+## How to reset the MCU by your main application
+
+You can use the watchdog to reset the MCU by your main application.
+
+To do so, you have to disable all interrupts, setup the watchdog for a very short time and enter an infinite loop like this:
+```c
+#include <avr/wdt.h>   // include watchdog functions
+
+cli();                 // disable interrupts
+wdt_enable(WDTO_15MS); // watchdog timeout 15ms
+while(1);              // wait for watchdog to reset mcu
+```
+
+This will reset your mcu and enter the bootloader.
+
+In the flash-app you may use the -R or --reset argument to send a CAN message which triggers the code above to do reset.
+
 ## Detailed description of the CAN messages
 
 Each CAN message has a fixed length of 8 byte. Unneeded bytes will be set to `0x00` and simply ignored.
