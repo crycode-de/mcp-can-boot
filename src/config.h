@@ -39,6 +39,43 @@
 #define TIMEOUT 250
 
 /**
+ * store The MCU Status Register to Register 2
+ * The MCU Status Register provides information on which reset source
+ * caused an MCU reset.
+ *
+ * paste this code into your program (not the bootloader)
+ * \code
+ *  uint8_t mcusr __attribute__ ((section (".noinit")));//<= the MCU Status Register
+ *  void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
+ *  void getMCUSR(void)
+ *  {
+ *      __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *  }
+ * \endcode
+ *
+ * to use
+ * \code
+ *  mcusr;//<= the MCU Status Register (global variable)
+ * \endcode
+ *
+ * or
+ *
+ * \code
+ *  void main()
+ *  {
+ *      uint8_t mcusr;
+ *      __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+ *  }
+ * \endcode
+ *
+ * to use
+ * \code
+ *  mcusr;//<= the MCU Status Register (local variable in function main)
+ * \endcode
+ */
+#define MCUSR_TO_R2 1
+
+/**
  * Data rate of the CAN bus.
  * CAN_5KBPS, CAN_10KBPS, CAN_20KBPS, CAN_31K25BPS, CAN_33KBPS, CAN_40KBPS,
  * CAN_50KBPS, CAN_80KBPS, CAN_83K3BPS, CAN_95KBPS, CAN_100KBPS, CAN_125KBPS,
