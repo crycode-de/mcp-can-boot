@@ -70,14 +70,22 @@
 //#define SET_SPI_SS_OUTPUT HIGH
 
 /**
+ * Use the Extended Frame Format (EFF) for CAN-Messages. (8 hex chars)
+ * Set to `false` to use the Standard Frame Format (SFF). (3 hex chars)
+ */
+#define CAN_EFF true
+
+/**
  * CAN-ID for bootloader message from MCU to remote.
  */
 #define CAN_ID_MCU_TO_REMOTE 0x1FFFFF01UL
+//#define CAN_ID_MCU_TO_REMOTE 0x1F1
 
 /**
  * CAN-ID for bootloader message from remote to MCU.
  */
 #define CAN_ID_REMOTE_TO_MCU 0x1FFFFF02UL
+//#define CAN_ID_REMOTE_TO_MCU 0x1F2
 
 /**
  * Store the MCU Status Register to Register 2 (R2).
@@ -111,6 +119,6 @@
  *  mcusr; // the MCU Status Register (local variable in function main)
  * \endcode
  */
-#define MCUSR_TO_R2 1
+#define MCUSR_TO_R2 true
 
 #endif

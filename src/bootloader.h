@@ -86,4 +86,20 @@ void startApp ();
   #endif
 #endif
 
+#if CAN_EFF
+  #if CAN_ID_MCU_TO_REMOTE > 0x1FFFFFFF
+    #error CAN_ID_MCU_TO_REMOTE is greater than 0x1FFFFFFF! Please check your config!
+  #endif
+  #if CAN_ID_REMOTE_TO_MCU > 0x1FFFFFFF
+    #error CAN_ID_REMOTE_TO_MCU is greater than 0x1FFFFFFF! Please check your config!
+  #endif
+#else
+  #if CAN_ID_MCU_TO_REMOTE > 0x7FF
+    #error CAN_EFF is not enabled and CAN_ID_MCU_TO_REMOTE is greater than 0x7FF! Please check your config!
+  #endif
+  #if CAN_ID_REMOTE_TO_MCU > 0x7FF
+    #error CAN_EFF is not enabled and CAN_ID_REMOTE_TO_MCU is greater than 0x7FF! Please check your config!
+  #endif
+#endif
+
 #endif

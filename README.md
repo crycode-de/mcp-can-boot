@@ -14,6 +14,7 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * Erase the whole flash (excluding the bootloader area)
 * Unique 16bit IDs to identify the MCU to flash
 * Correctly handled disabling of the watchdog at startup to prevent bootloader loops when using the watchdog in the main application
+* Support for Extended Frame Format (EFF, default) or Standard Frame Format (SFF) CAN-IDs
 * Very low impact on active CAN systems which enables to flash MCUs in active networks
 
 ## Currently supported AVR controllers
@@ -44,7 +45,7 @@ If you set the correct values, you may run `pio run --target fuses` to program t
 
 ## CAN bus communication
 
-The whole communication via the CAN bus uses only two extended frame CAN-IDs.
+The whole communication via the CAN bus uses only two CAN-IDs.
 
 *Defaults:*
 
