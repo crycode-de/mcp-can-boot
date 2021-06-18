@@ -118,6 +118,40 @@ This will reset your mcu and enter the bootloader.
 
 In the flash-app you may use the -R or --reset argument to send a CAN message which triggers the code above to do reset.
 
+## How to read the reset cause (MCUSR/MCUCSR) by your main application
+
+_MCP-CAN-Boot_ clears the MCUSR/MCUCSR register on startup. This is needed for propper watchdog handling.  
+The original MCUSR/MCUCSR value is stored in the R2 register by the bootloader which allows you to get it in your main application.
+
+To get the original value of the MCUSR/MCUCSR register by you main application, you have to read from the R2 register.
+
+### Read MCUSR/MCUCSR from R2 into a global variable
+
+To add a globale variable `mcusr` containing the original value of the MCUSR/MCUCSR register just add the following
+code on top of your main application:
+
+```cpp
+uint8_t mcusr __attribute__ ((section (".noinit")));
+void getMCUSR(void) __attribute__((naked)) __attribute__((section(".init0")));
+void getMCUSR(void) {
+  __asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+}
+```
+
+After this, the **global** variable `mcusr` is available and contains the value of the original MCUSR/MCUCSR register.  
+You don't have to call `getMCUSR` manually! This done automatically by the `init0` section.
+
+### Read MCUSR/MCUCSR from R2 into a local variable
+
+To read the value into a local variable (e.g. inside your `main` function) just add the following code in your function:
+
+```cpp
+uint8_t mcusr;
+__asm__ __volatile__ ( "mov %0, r2 \n" : "=r" (mcusr) : );
+```
+
+After this, the **local** variable `mcusr` is available and contains the value of the original MCUSR/MCUCSR register.
+
 ## Detailed description of the CAN messages
 
 Each CAN message has a fixed length of 8 byte. Unneeded bytes will be set to `0x00` and simply ignored.

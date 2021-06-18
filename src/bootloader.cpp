@@ -48,17 +48,17 @@ MCP2515 mcp2515;
 void get_mcusr(void) __attribute__((naked)) __attribute__((used)) __attribute__((section(".init3")));
 void get_mcusr(void) {
 #if defined(MCUCSR)
-  #if MCUSR_TO_R2
+  #if MCUSR_TO_R2 // store MCUCSR into R2 if enabled
     __asm__ __volatile__(
-        "  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t" 
-        ::[reset_caused_by_val] "r"(MCUCSR));
+        "  mov r2, %[mcusr_val] ;Move Between Registers \n\t"
+        ::[mcusr_val] "r"(MCUCSR));
   #endif
   MCUCSR = 0;
 #else
-  #if MCUSR_TO_R2
+  #if MCUSR_TO_R2 // store MCUSR into R2 if enabled
     __asm__ __volatile__(
-        "  mov r2, %[reset_caused_by_val] ;Move Between Registers \n\t"
-        ::[reset_caused_by_val] "r"(MCUSR));
+        "  mov r2, %[mcusr_val] ;Move Between Registers \n\t"
+        ::[mcusr_val] "r"(MCUSR));
   #endif
   MCUSR = 0;
 #endif
@@ -69,11 +69,14 @@ void get_mcusr(void) {
  * The main function of the bootloader.
  */
 int main () {
+  // Read from R2 into local mcusr variable if enabled.
+  // We use a local variable here to save some space.
   #if MCUSR_TO_R2
-    uint8_t reset_caused_by=0x00;/* MCUSR from bootloader */
-    __asm__ __volatile__("  mov %[reset_caused_by_val],r2 ;Move Between Registers \n\t"
-                         :[reset_caused_by_val] "=r" (reset_caused_by));
+    uint8_t mcusr = 0x00; // MCUSR from bootloader
+    __asm__ __volatile__("  mov %[mcusr_val],r2 ;Move Between Registers \n\t"
+                        :[mcusr_val] "=r"(mcusr));
   #endif
+
   // call init from arduino framework to setup timers
   init();
 
@@ -163,7 +166,7 @@ int main () {
         // ... and the message is for this bootloader
 
         // for all CAN messages to send in this block, can_dlc and MCU ID will
-        // be set correctly by the incomming message, so we can save flash space
+        // be set correctly by the incoming message, so we can save flash space
         // by not setting them again ... :-)
 
         // toggle the LED on each can message and set time to turn it on again
@@ -356,10 +359,13 @@ int main () {
             // delay for 50ms to let the mcp send the message
             delay(50);
 
+            // write value of local mcusr into R2
             #if MCUSR_TO_R2
-              __asm__ __volatile__("  mov r2,%[reset_caused_by_val] ;Move Between Registers \n\t"
-                         ::[reset_caused_by_val] "r" (reset_caused_by));
+              __asm__ __volatile__("  mov r2,%[mcusr_val] ;Move Between Registers \n\t"
+                         ::[mcusr_val] "r" (mcusr));
             #endif
+
+            // start the main application
             startApp();
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DONE_VERIFY) {
@@ -391,10 +397,13 @@ int main () {
             // delay for 50ms to let the mcp send the message
             delay(50);
 
+            // write value of local mcusr into R2
             #if MCUSR_TO_R2
-              __asm__ __volatile__("  mov r2,%[reset_caused_by_val] ;Move Between Registers \n\t"
-                         ::[reset_caused_by_val] "r" (reset_caused_by));
+              __asm__ __volatile__("  mov r2,%[mcusr_val] ;Move Between Registers \n\t"
+                         ::[mcusr_val] "r" (mcusr));
             #endif
+
+            // start the main application
             startApp();
           }
         }
@@ -406,11 +415,11 @@ int main () {
 
 /**
  * Write data from current global flash buffer to the flash page.
- * After writing the gloabl flash buffer will be emptied, the buffer position
+ * After writing the global flash buffer will be emptied, the buffer position
  * will be reset to 0 and the flash page will be increased.
  */
 void writeFlashPage () {
-  boot_program_page (flashPage, flashBuffer);
+  boot_program_page(flashPage, flashBuffer);
   memset(flashBuffer, 0xFF, SPM_PAGESIZE);
   flashBufferDataCount = 0;
   flashPage++;
@@ -428,30 +437,31 @@ void boot_program_page (uint16_t page, uint8_t *buf) {
 
   uint32_t addr = page * SPM_PAGESIZE;
 
-  /* Disable interrupts.*/
+  // Disable interrupts
   sreg = SREG;
   cli();
 
-  eeprom_busy_wait ();
+  eeprom_busy_wait();
 
-  boot_page_erase (addr);
-  boot_spm_busy_wait ();      /* Wait until the memory is erased. */
+  boot_page_erase(addr);
+  boot_spm_busy_wait(); // Wait until the memory is erased
 
   for (i=0; i<SPM_PAGESIZE; i+=2) {
-    /* Set up little-endian word. */
+    // Set up little-endian word
     uint16_t w = *buf++;
     w += (*buf++) << 8;
 
-    boot_page_fill (addr + i, w);
+    boot_page_fill(addr + i, w);
   }
-  boot_page_write (addr);     /* Store buffer in flash page.		*/
-  boot_spm_busy_wait();       /* Wait until the memory is written.*/
 
-  /* Reenable RWW-section again. We need this if we want to jump back */
-  /* to the application after bootloading. */
-  boot_rww_enable ();
+  boot_page_write(addr); // Store buffer in flash page
+  boot_spm_busy_wait(); // Wait until the memory is written
 
-  /* Re-enable interrupts (if they were ever enabled). */
+  // Reenable RWW-section again. We need this if we want to jump back
+  // to the application after bootloading.
+  boot_rww_enable();
+
+  // Re-enable interrupts (if they were ever enabled)
   SREG = sreg;
 }
 
