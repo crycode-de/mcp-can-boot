@@ -89,10 +89,14 @@ mcp-can-boot-flash-app [...]
                  with maximum address to read until                   [string]
 -F               Force flashing, even if the bootloader version missmatched
                                                                      [boolean]
+--reset, -R      CAN message to send on startup to reset the MCU
+                 (<can_id>#{hex_data})                                [string]
 --can-id-mcu     CAN-ID for messages from MCU to remote
                                                 [string] [default: 0x1FFFFF01]
 --can-id-remote  CAN-ID for messages from remote to MCU
                                                 [string] [default: 0x1FFFFF02]
+--sff            Use Standad Frame Format (SFF) instead of the default
+                 Extended Frame Format (EFF) for the CAN-IDs         [boolean]
 --help, -h       Show help                                           [boolean]
 ```
 
