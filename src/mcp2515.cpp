@@ -259,6 +259,8 @@ MCP2515::ERROR MCP2515::setBitrate(const CAN_SPEED canSpeed, CAN_CLOCK canClock)
 
   uint8_t set, cfg1, cfg2, cfg3;
   set = 1;
+
+  // Hint: The whole switch statement is optimized by the compiler at compile time. No need to use #ifdef here.
   switch (canClock)
   {
     case (MCP_8MHZ):
