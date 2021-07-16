@@ -39,12 +39,30 @@
 #define TIMEOUT 250
 
 /**
- * Data rate of the CAN bus.
+ * Bitrate of the CAN bus.
  * CAN_5KBPS, CAN_10KBPS, CAN_20KBPS, CAN_31K25BPS, CAN_33KBPS, CAN_40KBPS,
  * CAN_50KBPS, CAN_80KBPS, CAN_83K3BPS, CAN_95KBPS, CAN_100KBPS, CAN_125KBPS,
  * CAN_200KBPS, CAN_250KBPS, CAN_500KBPS or CAN_1000KBPS
  */
 #define CAN_KBPS CAN_500KBPS
+
+/**
+ * Set multiple bitrates to let the bootloader try to detect the bitrate used on
+ * the CAN bus.
+ * For each set bitrate the MCP2515 will be set to this bitrate and into listen
+ * only mode. Then the bootloader will wait for a defined timeout to receive a
+ * valid message. If a message is received the bootloader will assume the
+ * current bitrate as the bitrate to use.
+ * If no bitrate could be detected, the fixed bitrate defined in CAN_KBPS will
+ * be used. If not defined, only the fixed bitrate will be used.
+ */
+#define CAN_KBPS_DETECT CAN_125KBPS, CAN_500KBPS
+
+/**
+ * Timeout for each bitrate to detect a valid message in milliseconds.
+ * Only used if CAN_KBPS_DETECT is set.
+ */
+#define TIMEOUT_DETECT_CAN_KBPS 100
 
 /**
  * Clock speed of the MCP2515 CAN controller.

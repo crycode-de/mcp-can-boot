@@ -84,6 +84,11 @@ int main () {
   uint32_t flashAddr = 0;
   boolean flashing = false;
 
+  // local vars for timed actions
+  uint32_t startTime = millis();
+  uint32_t curTime;
+  uint32_t ledTime = 0;
+
   // change interrupt vectors to bootloader section
   uint8_t sregtemp = SREG;
   cli();
@@ -112,7 +117,36 @@ int main () {
     }
   }
 
-  mcp2515.setBitrate(CAN_KBPS, MCP_CLOCK);
+  #ifdef CAN_KBPS_DETECT
+    // try to detect the bitrate from a list of given bitrates
+    CAN_SPEED list[] = { CAN_KBPS_DETECT };
+    for (uint8_t i = 0; i < sizeof list; i++) {
+      LED_TOGGLE;
+
+      mcp2515.setBitrate(list[i], MCP_CLOCK);
+      mcp2515.setListenOnlyMode();
+
+      // wait for a message
+      startTime = millis();
+      do {
+        if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK) {
+          // got a message... found a bitrate
+          goto found_bitrate;
+        }
+      } while (millis() < startTime + TIMEOUT_DETECT_CAN_KBPS);
+    }
+
+    // fallback use a fixed bitrate if we could not detect
+    mcp2515.setBitrate(CAN_KBPS, MCP_CLOCK);
+
+    found_bitrate:
+
+    LED_ON;
+
+  #else
+    // set fixed bitrate
+    mcp2515.setBitrate(CAN_KBPS, MCP_CLOCK);
+  #endif
 
   // set mcp2515 filter to accept CAN_ID_REMOTE_TO_MCU only
   #if CAN_EFF
@@ -145,10 +179,8 @@ int main () {
   canMsg.data[7] = BOOTLOADER_CMD_VERSION;
   mcp2515.sendMessage(&canMsg);
 
-  // local vars for timed actions
-  uint32_t startTime = millis();
-  uint32_t curTime;
-  uint32_t ledTime = 0;
+  // reset the start time for correct waiting
+  startTime = millis();
 
   // main loop
   while (1) {
@@ -159,7 +191,7 @@ int main () {
       startApp();
     }
 
-    // turn led on if time to turm is set and greater than current time
+    // turn led on if time to turn is set and greater than current time
     if (ledTime != 0 && curTime >= ledTime) {
       LED_ON;
       ledTime = 0;
