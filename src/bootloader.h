@@ -36,6 +36,7 @@
 /*
  * CAN message commands definitions
  */
+#define CMD_PING                     0b00000000 // remote -> mcu
 #define CMD_ERROR                    0b00000001 // mcu -> remote
 #define CMD_BOOTLOADER_START         0b00000010 // mcu -> remote
 #define CMD_FLASH_INIT               0b00000110 // remote -> mcu
