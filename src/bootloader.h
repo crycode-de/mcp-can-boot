@@ -21,7 +21,7 @@
 
 /**
  * Command set version of this bootloader.
- * Used to identify a possibly incompatilbe flash application on remote.
+ * Used to identify a possibly incompatible flash application on remote.
  */
 #define BOOTLOADER_CMD_VERSION 0x01
 
@@ -99,6 +99,12 @@ void startApp ();
   #endif
   #if CAN_ID_REMOTE_TO_MCU > 0x7FF
     #error CAN_EFF is not enabled and CAN_ID_REMOTE_TO_MCU is greater than 0x7FF! Please check your config!
+  #endif
+#endif
+
+#ifdef CAN_KBPS_DETECT
+  #if !defined(TIMEOUT_DETECT_CAN_KBPS)
+    #error When using CAN_KBPS_DETECT, also TIMEOUT_DETECT_CAN_KBPS must be defined!
   #endif
 #endif
 

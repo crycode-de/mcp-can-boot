@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        pio-env: [ATmega32,ATmega328P,ATmega64,ATmega644P,ATmega128,ATmega1284P,ATmega2560]
+        pio-env: [ATmega32,ATmega328P,ATmega64,ATmega64_4k,ATmega644P,ATmega644P_4k,ATmega128,ATmega128_4k,ATmega1284P,ATmega1284P_4k,ATmega2560,ATmega2560_4k]
 
     steps:
     - uses: actions/checkout@v2

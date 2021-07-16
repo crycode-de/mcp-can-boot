@@ -16,6 +16,7 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * Correctly handled disabling of the watchdog at startup to prevent bootloader loops when using the watchdog in the main application
 * Use Extended Frame Format (EFF, default) or Standard Frame Format (SFF) CAN-IDs
 * Very low impact on active CAN systems which enables to flash MCUs in active networks
+* Optional automatic detection of the used bitrate on the CAN bus
 
 ## Currently supported AVR controllers
 
@@ -29,9 +30,10 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 
 ## Bootloader size
 
-This bootloader will fit into a 2048 words (4096 bytes) bootloader section.
+This bootloader will fit into a 2048 words (4096 bytes) bootloader section in most cases.  
+Depending on the configuration (bitrate detection and LED support enabled) you may need to use a 4096 words (8192 bytes) bootloader section for some MCUs.
 
-The fuse bits of the MCU have to be set correctly to a boot flash section size of 2048 words and the boot reset vector must be enabled (BOOTRST=0).
+The fuse bits of the MCU have to be set correctly to a boot flash section size of 2048 (or 4096) words and the boot reset vector must be enabled (BOOTRST=0).
 
 ## Flashing the bootloader
 
