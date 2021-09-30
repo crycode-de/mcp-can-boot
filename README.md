@@ -18,6 +18,13 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * Very low impact on active CAN systems which enables to flash MCUs in active networks
 * Optional automatic detection of the used bitrate on the CAN bus
 
+## Used frameworks and libraries
+
+*MCP-CAN-Boot* is made as a [PlatformIO](https://platformio.org/) project.  
+It uses parts of the [Arduino](https://www.arduino.cc/) framework.
+
+For controlling the MCP2515 a modified version of the [Arduino MCP2515 CAN interface library](https://github.com/autowp/arduino-mcp2515) is used.
+
 ## Currently supported AVR controllers
 
 * [ATmega32](http://ww1.microchip.com/downloads/en/devicedoc/doc2503.pdf)
@@ -41,8 +48,11 @@ To flash the _MCP-CAN-Boot_ bootloader you need to use an ISP programmer.
 
 Make sure to set the fuse bits correctly for a 2048 words bootloader and boot resest vector enabled. Otherwise the bootloader will not work.
 
-Examples for each supported controller are in `platformio.ini` (commented out by default).  
-To set the fuse bits, enable the lines starting with `board_fuses.` for your controller. _Always check/edit the fuses values to fit your needs!_  
+### Set the fuse bits
+
+Examples for each supported controller are in `platformio.ini` (commented out by default).
+
+To set the fuse bits, enable the lines starting with `board_fuses.*` for your controller. _Always check/edit the fuses values to fit your needs!_  
 If you set the correct values, you may run `pio run --target fuses` to program the fuses on your controller.
 
 ## CAN bus communication
@@ -56,7 +66,7 @@ The whole communication via the CAN bus uses only two CAN-IDs.
 
 Using this two IDs nearly at the end of CAN-ID range with the lowest priority there will be almost none interference flashing an MCU in a active CAN system.
 
-Each CAN message consists of fixed eight data bytes.
+Each CAN message consists of eight data bytes.  
 The first four bytes are used for MCU identification, commands, data lengths and data identification. The other four bytes contain the data to read or write.
 
 ## Flash-App
@@ -342,14 +352,6 @@ Additionally a *start app* command may be send at any time by the flash applicat
 ### Communication example
 
 ![Communication example](./doc/flash-sequence.svg)
-
-## Used frameworks and libraries
-
-*MCP-CAN-Boot* is made as a [PlatformIO](https://platformio.org/) project.
-
-It uses parts of the [Arduino](https://www.arduino.cc/) framework.
-
-For controlling the MCP2515 a modified version of the [Arduino MCP2515 CAN interface library](https://github.com/autowp/arduino-mcp2515) is used.
 
 ## License
 
