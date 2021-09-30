@@ -21,7 +21,7 @@
 
 /**
  * Command set version of this bootloader.
- * Used to identify a possibly incompatilbe flash application on remote.
+ * Used to identify a possibly incompatible flash application on remote.
  */
 #define BOOTLOADER_CMD_VERSION 0x01
 

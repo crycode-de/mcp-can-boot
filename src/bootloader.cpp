@@ -453,7 +453,7 @@ void boot_program_page (uint16_t page, uint8_t *buf) {
   uint16_t i;
   uint8_t sreg;
 
-  uint32_t addr = page * SPM_PAGESIZE;
+  uint32_t addr = ((uint32_t)page) * SPM_PAGESIZE; // type cast of `page` to support addresses bigger than 0xFFFF
 
   // Disable interrupts
   sreg = SREG;
