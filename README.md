@@ -53,7 +53,7 @@ Make sure to set the fuse bits correctly for a 2048 words bootloader and boot re
 Examples for each supported controller are in `platformio.ini` (commented out by default).
 
 To set the fuse bits, enable the lines starting with `board_fuses.*` for your controller. _Always check/edit the fuses values to fit your needs!_  
-If you set the correct values, you may run `pio run --target fuses` to program the fuses on your controller.
+If you set the correct values, you may run `pio run --target fuses --environment ATmega1284P` to program the fuses on your controller.
 
 ## CAN bus communication
 
@@ -359,4 +359,4 @@ Additionally a *start app* command may be send at any time by the flash applicat
 
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> [https://crycode.de](https://crycode.de)
+Copyright (C) 2020-2022 Peter Müller <peter@crycode.de> [https://crycode.de](https://crycode.de)
