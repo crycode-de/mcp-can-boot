@@ -143,7 +143,7 @@ int main () {
   canMsg.data[5] = SIGNATURE_1;
   canMsg.data[6] = SIGNATURE_2;
   canMsg.data[7] = BOOTLOADER_CMD_VERSION;
-  mcp2515.sendMessage(&canMsg);
+  mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
   // local vars for timed actions
   uint32_t startTime = millis();
@@ -212,7 +212,7 @@ int main () {
             canMsg.data[5] = (flashAddr >> 16) & 0xFF;
             canMsg.data[6] = (flashAddr >> 8) & 0xFF;
             canMsg.data[7] = flashAddr & 0xFF;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           }
 
@@ -239,7 +239,7 @@ int main () {
             canMsg.data[5] = (flashAddr >> 16) & 0xFF;
             canMsg.data[6] = (flashAddr >> 8) & 0xFF;
             canMsg.data[7] = flashAddr & 0xFF;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_READ) {
             // read flash memory at given address
@@ -253,7 +253,7 @@ int main () {
               canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
               canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
               canMsg.data[7] = FLASHEND_BL & 0xFF;
-              mcp2515.sendMessage(&canMsg);
+              mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
               continue;
             }
 
@@ -271,7 +271,7 @@ int main () {
 
             canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READ_DATA;
             canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = (len << 5) | (readFlashAddr & 0b00011111);  // number of data bytes read and address part
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_SET_ADDRESS) {
             // set the start address for flashing
@@ -287,7 +287,7 @@ int main () {
               canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
               canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
               canMsg.data[7] = FLASHEND_BL & 0xFF;
-              mcp2515.sendMessage(&canMsg);
+              mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
               continue;
             }
 
@@ -308,7 +308,7 @@ int main () {
             canMsg.data[5] = (flashAddr >> 16) & 0xFF;
             canMsg.data[6] = (flashAddr >> 8) & 0xFF;
             canMsg.data[7] = flashAddr & 0xFF;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DATA) {
             // data for flashing
@@ -322,7 +322,7 @@ int main () {
               canMsg.data[5] = (flashAddr >> 16) & 0xFF;
               canMsg.data[6] = (flashAddr >> 8) & 0xFF;
               canMsg.data[7] = flashAddr & 0xFF;
-              mcp2515.sendMessage(&canMsg);
+              mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
               continue;
             }
 
@@ -336,7 +336,7 @@ int main () {
               canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
               canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
               canMsg.data[7] = FLASHEND_BL & 0xFF;
-              mcp2515.sendMessage(&canMsg);
+              mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
               continue;
             }
             for (uint8_t i = 0; i < len; i++) {
@@ -356,7 +356,7 @@ int main () {
             canMsg.data[5] = (flashAddr >> 16) & 0xFF;
             canMsg.data[6] = (flashAddr >> 8) & 0xFF;
             canMsg.data[7] = flashAddr & 0xFF;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DONE) {
             // flashing done...
@@ -372,7 +372,7 @@ int main () {
             canMsg.data[5] = 0x00;
             canMsg.data[6] = 0x00;
             canMsg.data[7] = 0x00;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
             // delay for 50ms to let the mcp send the message
             delay(50);
@@ -400,7 +400,7 @@ int main () {
             canMsg.data[5] = 0x00;
             canMsg.data[6] = 0x00;
             canMsg.data[7] = 0x00;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_START_APP) {
             // just start the main application now
@@ -410,7 +410,7 @@ int main () {
             canMsg.data[5] = 0x00;
             canMsg.data[6] = 0x00;
             canMsg.data[7] = 0x00;
-            mcp2515.sendMessage(&canMsg);
+            mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
             // delay for 50ms to let the mcp send the message
             delay(50);
