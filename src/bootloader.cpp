@@ -114,10 +114,12 @@ int main () {
   // reset the CAN controller, go into infinite loop with LED blinking on errors
   if (mcp2515.reset() != MCP2515::ERROR_OK) {
     while (1) {
-      LED_OFF;
-      delay(50);
-      LED_ON;
-      delay(50);
+      #ifdef LED
+        LED_OFF;
+        delay(50);
+        LED_ON;
+        delay(50);
+      #endif
     }
   }
 
@@ -338,9 +340,6 @@ int main () {
             prepMsg(CMD_START_APP, 0x00, 0x00000000);
             mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
 
-            // delay for 50ms to let the mcp send the message
-            delay(50);
-
             // write value of local mcusr into R2
             #if MCUSR_TO_R2
               __asm__ __volatile__("  mov r2,%[mcusr_val] ;Move Between Registers \n\t"
@@ -365,9 +364,6 @@ int main () {
             // just start the main application now
             prepMsg(CMD_START_APP, 0x00, 0x00000000);
             mcp2515.sendMessage(MCP2515::TXBn::TXB0,&canMsg);
-
-            // delay for 50ms to let the mcp send the message
-            delay(50);
 
             // write value of local mcusr into R2
             #if MCUSR_TO_R2
