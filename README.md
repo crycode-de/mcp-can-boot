@@ -29,6 +29,7 @@ For controlling the MCP2515 a modified version of the [Arduino MCP2515 CAN inter
 
 * [ATmega32](http://ww1.microchip.com/downloads/en/devicedoc/doc2503.pdf)
 * [ATmega328P](http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
+* [ATmega32U4](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7766-8-bit-AVR-ATmega16U4-32U4_Datasheet.pdf)
 * [ATmega64](http://ww1.microchip.com/downloads/en/DeviceDoc/atmel-2490-8-bit-avr-microcontroller-atmega64-l_datasheet.pdf)
 * [ATmega644P](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-42744-ATmega644P_Datasheet.pdf)
 * [ATmega128](http://ww1.microchip.com/downloads/en/DeviceDoc/doc2467.pdf)
@@ -359,4 +360,4 @@ Additionally a *start app* command may be send at any time by the flash applicat
 
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Copyright (C) 2020-2022 Peter Müller <peter@crycode.de> [https://crycode.de](https://crycode.de)
+Copyright (C) 2020-2023 Peter Müller <peter@crycode.de> [https://crycode.de](https://crycode.de)

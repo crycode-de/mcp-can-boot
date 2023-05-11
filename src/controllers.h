@@ -3,7 +3,7 @@
  *
  * CAN bus bootloader for AVR microcontrollers attached to an MCP2515 CAN controller.
  *
- * Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> (https://crycode.de)
+ * Copyright (C) 2020-2023 Peter Müller <peter@crycode.de> (https://crycode.de)
  *
  * License: CC BY-NC-SA 4.0
  *
@@ -37,6 +37,16 @@
   #define SPI_MOSI 2
   #define SPI_MISO 3
   #define SPI_SCK  1
+
+#elif defined(__AVR_ATmega32U4__)
+  #define IV_REG MCUCR
+
+  #define SPI_DDR DDRB
+  #define SPI_PORT PORTB
+  #define SPI_SS 0
+  #define SPI_MOSI 2
+  #define SPI_MISO 3
+  #define SPI_SCK 1
 
 #elif defined(__AVR_ATmega328P__)
   #define IV_REG MCUCR
