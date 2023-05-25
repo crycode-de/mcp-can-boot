@@ -45,6 +45,8 @@ The fuse bits of the MCU have to be set correctly to a boot flash section size o
 
 To flash the _MCP-CAN-Boot_ bootloader you need to use an ISP programmer.
 
+To upload the bootloader run `pio run --target upload --environment ATmega1284P` for example.
+
 Make sure to set the fuse bits correctly for a 2048 words bootloader and boot resest vector enabled. Otherwise the bootloader will not work.
 
 ### Set the fuse bits
