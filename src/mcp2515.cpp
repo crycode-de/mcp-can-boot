@@ -108,6 +108,9 @@ MCP2515::ERROR MCP2515::reset(void) {
 
   delay(10);
 
+  // make sure bucketing is disabled by default
+  setRegister(MCP_RXB0CTRL, 0);
+
   setRegister(MCP_CANINTE, CANINTF_RX0IF | CANINTF_RX1IF | CANINTF_ERRIF | CANINTF_MERRF);
 
   return ERROR_OK;
@@ -648,8 +651,18 @@ MCP2515::ERROR MCP2515::sendMessage(const struct can_frame *frame) {
   return ERROR_ALLTXBUSY;
 }
 
-MCP2515::ERROR MCP2515::readMessage(const RXBn rxbn, struct can_frame *frame) {
-  const struct RXBn_REGS *rxb = &RXB[rxbn];
+MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
+  uint8_t stat = getStatus();
+
+  if ( stat & STAT_RX0IF ) {
+    // continue
+  } else if ( stat & STAT_RX1IF ) {
+    return ERROR_NOMSG;// bootloader only cares about buffer 0
+  } else {
+    return ERROR_NOMSG;
+  }
+  
+  const struct RXBn_REGS *rxb = &RXB[0];
 
   uint8_t tbufdata[5];
 
@@ -682,21 +695,6 @@ MCP2515::ERROR MCP2515::readMessage(const RXBn rxbn, struct can_frame *frame) {
   modifyRegister(MCP_CANINTF, rxb->CANINTF_RXnIF, 0);
 
   return ERROR_OK;
-}
-
-MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
-  ERROR rc;
-  uint8_t stat = getStatus();
-
-  if ( stat & STAT_RX0IF ) {
-    rc = readMessage(RXB0, frame);
-  } else if ( stat & STAT_RX1IF ) {
-    rc = readMessage(RXB1, frame);
-  } else {
-    rc = ERROR_NOMSG;
-  }
-
-  return rc;
 }
 
 bool MCP2515::checkReceive(void) {
