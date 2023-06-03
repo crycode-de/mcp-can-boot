@@ -612,13 +612,19 @@ MCP2515::ERROR MCP2515::sendMessage(const TXBn txbn, const struct can_frame *fra
 
   modifyRegister(txbuf->CTRL, TXB_TXREQ, TXB_TXREQ);
 
-  // wait for transmission to complete
+  // Wait for transmission to complete or timeout (assumes we are not in one-shot
+  // mode). The MCP2515 will try to transmit a frame until successful. It will
+  // report errors along the way, but those are just informational. The chip will
+  // only stop trying once we abort the request after the timeout.
   uint8_t ctrl = 0x00;
+  uint8_t timeout = 255;
   do {
     ctrl = readRegister(txbuf->CTRL);
-  } while (ctrl & TXB_TXREQ);
+  } while ((ctrl & TXB_TXREQ) && (--timeout != 0));
 
-  if ((ctrl & (TXB_ABTF | TXB_MLOA | TXB_TXERR)) != 0) {
+  if (timeout == 0) {
+    // upon timeout, abort tx request and return error
+    modifyRegister(txbuf->CTRL, TXB_TXREQ, 0);
     return ERROR_FAILTX;
   }
   return ERROR_OK;
