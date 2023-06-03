@@ -592,12 +592,12 @@ MCP2515::ERROR MCP2515::setFilter(const RXF num, const bool ext, const uint32_t 
   return ERROR_OK;
 }
 
-MCP2515::ERROR MCP2515::sendMessage(const TXBn txbn, const struct can_frame *frame) {
+MCP2515::ERROR MCP2515::sendMessage(const struct can_frame *frame) {
   if (frame->can_dlc > CAN_MAX_DLEN) {
     return ERROR_FAILTX;
   }
 
-  const struct TXBn_REGS *txbuf = &TXB[txbn];
+  const struct TXBn_REGS *txbuf = &TXB[0];// bootloader only uses tx0
 
   uint8_t data[13];
 
@@ -633,36 +633,13 @@ MCP2515::ERROR MCP2515::sendMessage(const TXBn txbn, const struct can_frame *fra
   return ERROR_OK;
 }
 
-MCP2515::ERROR MCP2515::sendMessage(const struct can_frame *frame) {
-  if (frame->can_dlc > CAN_MAX_DLEN) {
-    return ERROR_FAILTX;
-  }
-
-  TXBn txBuffers[N_TXBUFFERS] = {TXB0, TXB1, TXB2};
-
-  for (int i=0; i<N_TXBUFFERS; i++) {
-    const struct TXBn_REGS *txbuf = &TXB[txBuffers[i]];
-    uint8_t ctrlval = readRegister(txbuf->CTRL);
-    if ( (ctrlval & TXB_TXREQ) == 0 ) {
-      return sendMessage(txBuffers[i], frame);
-    }
-  }
-
-  return ERROR_ALLTXBUSY;
-}
-
 MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
   uint8_t stat = getStatus();
-
-  if ( stat & STAT_RX0IF ) {
-    // continue
-  } else if ( stat & STAT_RX1IF ) {
-    return ERROR_NOMSG;// bootloader only cares about buffer 0
-  } else {
+  if ( ! (stat & STAT_RX0IF)) {
     return ERROR_NOMSG;
   }
   
-  const struct RXBn_REGS *rxb = &RXB[0];
+  const struct RXBn_REGS *rxb = &RXB[0];// bootloader only uses rx0
 
   uint8_t tbufdata[5];
 

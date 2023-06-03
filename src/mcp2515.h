@@ -484,7 +484,6 @@ class MCP2515
         ERROR setBitrate(const CAN_SPEED canSpeed, const CAN_CLOCK canClock);
         ERROR setFilterMask(const MASK num, const bool ext, const uint32_t ulData);
         ERROR setFilter(const RXF num, const bool ext, const uint32_t ulData);
-        ERROR sendMessage(const TXBn txbn, const struct can_frame *frame);
         ERROR sendMessage(const struct can_frame *frame);
         ERROR readMessage(struct can_frame *frame);
         bool checkReceive(void);
