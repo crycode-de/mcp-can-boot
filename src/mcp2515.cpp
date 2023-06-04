@@ -108,45 +108,10 @@ MCP2515::ERROR MCP2515::reset(void) {
 
   delay(10);
 
-  uint8_t zeros[14];
-  memset(zeros, 0, sizeof(zeros));
-  setRegisters(MCP_TXB0CTRL, zeros, 14);
-  setRegisters(MCP_TXB1CTRL, zeros, 14);
-  setRegisters(MCP_TXB2CTRL, zeros, 14);
-
+  // make sure bucketing is disabled by default
   setRegister(MCP_RXB0CTRL, 0);
-  setRegister(MCP_RXB1CTRL, 0);
 
   setRegister(MCP_CANINTE, CANINTF_RX0IF | CANINTF_RX1IF | CANINTF_ERRIF | CANINTF_MERRF);
-
-  // receives all valid messages using either Standard or Extended Identifiers that
-  // meet filter criteria. RXF0 is applied for RXB0, RXF1 is applied for RXB1
-  modifyRegister(MCP_RXB0CTRL,
-                 RXBnCTRL_RXM_MASK | RXB0CTRL_BUKT | RXB0CTRL_FILHIT_MASK,
-                 RXBnCTRL_RXM_STDEXT | RXB0CTRL_BUKT | RXB0CTRL_FILHIT);
-  modifyRegister(MCP_RXB1CTRL,
-                 RXBnCTRL_RXM_MASK | RXB1CTRL_FILHIT_MASK,
-                 RXBnCTRL_RXM_STDEXT | RXB1CTRL_FILHIT);
-
-  // clear filters and masks
-  // do not filter any standard frames for RXF0 used by RXB0
-  // do not filter any extended frames for RXF1 used by RXB1
-  RXF filters[] = {RXF0, RXF1, RXF2, RXF3, RXF4, RXF5};
-  for (int i=0; i<6; i++) {
-    bool ext = (i == 1);
-    ERROR result = setFilter(filters[i], ext, 0);
-    if (result != ERROR_OK) {
-      return result;
-    }
-  }
-
-  MASK masks[] = {MASK0, MASK1};
-  for (int i=0; i<2; i++) {
-    ERROR result = setFilterMask(masks[i], true, 0);
-    if (result != ERROR_OK) {
-      return result;
-    }
-  }
 
   return ERROR_OK;
 }
@@ -627,12 +592,12 @@ MCP2515::ERROR MCP2515::setFilter(const RXF num, const bool ext, const uint32_t 
   return ERROR_OK;
 }
 
-MCP2515::ERROR MCP2515::sendMessage(const TXBn txbn, const struct can_frame *frame) {
+MCP2515::ERROR MCP2515::sendMessage(const struct can_frame *frame) {
   if (frame->can_dlc > CAN_MAX_DLEN) {
     return ERROR_FAILTX;
   }
 
-  const struct TXBn_REGS *txbuf = &TXB[txbn];
+  const struct TXBn_REGS *txbuf = &TXB[0];// bootloader only uses tx0
 
   uint8_t data[13];
 
@@ -650,33 +615,31 @@ MCP2515::ERROR MCP2515::sendMessage(const TXBn txbn, const struct can_frame *fra
 
   modifyRegister(txbuf->CTRL, TXB_TXREQ, TXB_TXREQ);
 
-  uint8_t ctrl = readRegister(txbuf->CTRL);
-  if ((ctrl & (TXB_ABTF | TXB_MLOA | TXB_TXERR)) != 0) {
+  // Wait for transmission to complete or timeout (assumes we are not in one-shot
+  // mode). The MCP2515 will try to transmit a frame until successful. It will
+  // report errors along the way, but those are just informational. The chip will
+  // only stop trying once we abort the request after the timeout.
+  uint8_t ctrl = 0x00;
+  uint8_t timeout = 255;
+  do {
+    ctrl = readRegister(txbuf->CTRL);
+  } while ((ctrl & TXB_TXREQ) && (--timeout != 0));
+
+  if (timeout == 0) {
+    // upon timeout, abort tx request and return error
+    modifyRegister(txbuf->CTRL, TXB_TXREQ, 0);
     return ERROR_FAILTX;
   }
   return ERROR_OK;
 }
 
-MCP2515::ERROR MCP2515::sendMessage(const struct can_frame *frame) {
-  if (frame->can_dlc > CAN_MAX_DLEN) {
-    return ERROR_FAILTX;
+MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
+  uint8_t stat = getStatus();
+  if ( ! (stat & STAT_RX0IF)) {
+    return ERROR_NOMSG;
   }
-
-  TXBn txBuffers[N_TXBUFFERS] = {TXB0, TXB1, TXB2};
-
-  for (int i=0; i<N_TXBUFFERS; i++) {
-    const struct TXBn_REGS *txbuf = &TXB[txBuffers[i]];
-    uint8_t ctrlval = readRegister(txbuf->CTRL);
-    if ( (ctrlval & TXB_TXREQ) == 0 ) {
-      return sendMessage(txBuffers[i], frame);
-    }
-  }
-
-  return ERROR_ALLTXBUSY;
-}
-
-MCP2515::ERROR MCP2515::readMessage(const RXBn rxbn, struct can_frame *frame) {
-  const struct RXBn_REGS *rxb = &RXB[rxbn];
+  
+  const struct RXBn_REGS *rxb = &RXB[0];// bootloader only uses rx0
 
   uint8_t tbufdata[5];
 
@@ -709,21 +672,6 @@ MCP2515::ERROR MCP2515::readMessage(const RXBn rxbn, struct can_frame *frame) {
   modifyRegister(MCP_CANINTF, rxb->CANINTF_RXnIF, 0);
 
   return ERROR_OK;
-}
-
-MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
-  ERROR rc;
-  uint8_t stat = getStatus();
-
-  if ( stat & STAT_RX0IF ) {
-    rc = readMessage(RXB0, frame);
-  } else if ( stat & STAT_RX1IF ) {
-    rc = readMessage(RXB1, frame);
-  } else {
-    rc = ERROR_NOMSG;
-  }
-
-  return rc;
 }
 
 bool MCP2515::checkReceive(void) {

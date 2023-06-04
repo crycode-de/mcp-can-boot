@@ -65,6 +65,15 @@ void get_mcusr(void) {
   wdt_disable();
 }
 
+void prepMsg(uint8_t cmd, uint8_t len, uint32_t flashAddr) {
+  canMsg.data[CAN_DATA_BYTE_CMD]          = cmd;
+  canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = (len << 5) | (flashAddr & 0b00011111);
+  canMsg.data[4] = (flashAddr >> 24) & 0xFF;
+  canMsg.data[5] = (flashAddr >> 16) & 0xFF;
+  canMsg.data[6] = (flashAddr >> 8) & 0xFF;
+  canMsg.data[7] = flashAddr & 0xFF;
+}
+
 /**
  * The main function of the bootloader.
  */
@@ -105,10 +114,12 @@ int main () {
   // reset the CAN controller, go into infinite loop with LED blinking on errors
   if (mcp2515.reset() != MCP2515::ERROR_OK) {
     while (1) {
-      LED_OFF;
-      delay(50);
-      LED_ON;
-      delay(50);
+      #ifdef LED
+        LED_OFF;
+        delay(50);
+        LED_ON;
+        delay(50);
+      #endif
     }
   }
 
@@ -206,12 +217,7 @@ int main () {
             flashing = true;
 
             // send flash ready message
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READY;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-            canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-            canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-            canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-            canMsg.data[7] = flashAddr & 0xFF;
+            prepMsg(CMD_FLASH_READY, 0x00, flashAddr);
             mcp2515.sendMessage(&canMsg);
 
           }
@@ -233,12 +239,7 @@ int main () {
             flashBufferPos = 0;
             flashAddr = 0;
 
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READY;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-            canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-            canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-            canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-            canMsg.data[7] = flashAddr & 0xFF;
+            prepMsg(CMD_FLASH_READY, 0x00, flashAddr);
             mcp2515.sendMessage(&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_READ) {
@@ -247,12 +248,7 @@ int main () {
 
             if (readFlashAddr > FLASHEND_BL) {
               // flash read after flash end
-              canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READ_ADDRESS_ERROR;
-              canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-              canMsg.data[4] = ((uint32_t)FLASHEND_BL >> 24) & 0xFF;
-              canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
-              canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
-              canMsg.data[7] = FLASHEND_BL & 0xFF;
+              prepMsg(CMD_FLASH_READ_ADDRESS_ERROR, 0x00, FLASHEND_BL);
               mcp2515.sendMessage(&canMsg);
               continue;
             }
@@ -281,12 +277,7 @@ int main () {
 
             if (newFlashAddr > FLASHEND_BL) {
               // address cannot be flashed
-              canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_ADDRESS_ERROR;
-              canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-              canMsg.data[4] = ((uint32_t)FLASHEND_BL >> 24) & 0xFF;
-              canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
-              canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
-              canMsg.data[7] = FLASHEND_BL & 0xFF;
+              prepMsg(CMD_FLASH_ADDRESS_ERROR, 0x00, FLASHEND_BL);
               mcp2515.sendMessage(&canMsg);
               continue;
             }
@@ -302,12 +293,7 @@ int main () {
             flashBufferPos = newFlashBufferPos;
 
             // send flash ready
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READY;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = flashAddr & 0b00011111; // no data bytes written, just address part
-            canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-            canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-            canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-            canMsg.data[7] = flashAddr & 0xFF;
+            prepMsg(CMD_FLASH_READY, 0x00, flashAddr);
             mcp2515.sendMessage(&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DATA) {
@@ -316,12 +302,7 @@ int main () {
             // check address part (lower 5 bits)
             if ((flashAddr & 0b00011111) != (canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] & 0b00011111)) {
               // send flash data error with the exprected flash address
-              canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_DATA_ERROR;
-              canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = flashAddr & 0b00011111; // no data bytes written, just address part
-              canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-              canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-              canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-              canMsg.data[7] = flashAddr & 0xFF;
+              prepMsg(CMD_FLASH_DATA_ERROR, 0x00, flashAddr);
               mcp2515.sendMessage(&canMsg);
               continue;
             }
@@ -330,12 +311,7 @@ int main () {
             uint8_t len = (canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] >> 5);
             if ((flashAddr + len - 1) > FLASHEND_BL) {
               // address cannot be flashed
-              canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_ADDRESS_ERROR;
-              canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-              canMsg.data[4] = ((uint32_t)FLASHEND_BL >> 24) & 0xFF;
-              canMsg.data[5] = ((uint32_t)FLASHEND_BL >> 16) & 0xFF;
-              canMsg.data[6] = ((uint32_t)FLASHEND_BL >> 8) & 0xFF;
-              canMsg.data[7] = FLASHEND_BL & 0xFF;
+              prepMsg(CMD_FLASH_ADDRESS_ERROR, 0x00, FLASHEND_BL);
               mcp2515.sendMessage(&canMsg);
               continue;
             }
@@ -350,12 +326,7 @@ int main () {
             }
 
             // send flash ready
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_READY;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = (len << 5) | (flashAddr & 0b00011111);  // number of data bytes written and address part
-            canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-            canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-            canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-            canMsg.data[7] = flashAddr & 0xFF;
+            prepMsg(CMD_FLASH_READY, len, flashAddr);
             mcp2515.sendMessage(&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_DONE) {
@@ -366,16 +337,8 @@ int main () {
             }
 
             // send start app
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_START_APP;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-            canMsg.data[4] = 0x00;
-            canMsg.data[5] = 0x00;
-            canMsg.data[6] = 0x00;
-            canMsg.data[7] = 0x00;
+            prepMsg(CMD_START_APP, 0x00, 0x00000000);
             mcp2515.sendMessage(&canMsg);
-
-            // delay for 50ms to let the mcp send the message
-            delay(50);
 
             // write value of local mcusr into R2
             #if MCUSR_TO_R2
@@ -394,26 +357,13 @@ int main () {
             }
 
             // send flash done verify back
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_FLASH_DONE_VERIFY;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-            canMsg.data[4] = 0x00;
-            canMsg.data[5] = 0x00;
-            canMsg.data[6] = 0x00;
-            canMsg.data[7] = 0x00;
+            prepMsg(CMD_FLASH_DONE_VERIFY, 0x00, 0x00000000);
             mcp2515.sendMessage(&canMsg);
 
           } else if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_START_APP) {
             // just start the main application now
-            canMsg.data[CAN_DATA_BYTE_CMD]          = CMD_START_APP;
-            canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = 0x00;
-            canMsg.data[4] = 0x00;
-            canMsg.data[5] = 0x00;
-            canMsg.data[6] = 0x00;
-            canMsg.data[7] = 0x00;
+            prepMsg(CMD_START_APP, 0x00, 0x00000000);
             mcp2515.sendMessage(&canMsg);
-
-            // delay for 50ms to let the mcp send the message
-            delay(50);
 
             // write value of local mcusr into R2
             #if MCUSR_TO_R2
