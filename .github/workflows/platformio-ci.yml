@@ -9,13 +9,13 @@ jobs:
 
     strategy:
       matrix:
-        pio-env: [ATmega32,ATmega328P,ATmega64,ATmega644P,ATmega128,ATmega1284P,ATmega2560]
+        pio-env: [ATmega32,ATmega32U4,ATmega328P,ATmega64,ATmega644P,ATmega128,ATmega1284P,ATmega2560]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -23,13 +23,13 @@ jobs:
           ${{ runner.os }}-pip-
 
     - name: Cache PlatformIO
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.platformio
         key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
 
     - name: Install PlatformIO
       run: |
@@ -40,9 +40,9 @@ jobs:
       run: pio run -e ${{ matrix.pio-env }}
 
     - name: Archive build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: build-${{ matrix.pio-env }}
+        name: ${{ matrix.pio-env }}
         path: |
           .pio/build/*/firmware.hex
           .pio/build/*/firmware.map
