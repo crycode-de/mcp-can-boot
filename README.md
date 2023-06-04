@@ -16,6 +16,7 @@ CAN bus bootloader for **AVR microcontrollers** attached to an **MCP2515** CAN c
 * Correctly handled disabling of the watchdog at startup to prevent bootloader loops when using the watchdog in the main application
 * Use Extended Frame Format (EFF, default) or Standard Frame Format (SFF) CAN-IDs
 * Very low impact on active CAN systems which enables to flash MCUs in active networks
+* Optional automatic detection of the used bitrate on the CAN bus
 
 ## Used frameworks and libraries
 
@@ -110,6 +111,9 @@ mcp-can-boot-flash-app [...]
                                                 [string] [default: 0x1FFFFF02]
 --sff            Use Standad Frame Format (SFF) instead of the default
                  Extended Frame Format (EFF) for the CAN-IDs         [boolean]
+--ping           Send a ping in the given interval (ms) to keep the bus active
+                 (should be used if the bootloader uses bitrate detection)
+                                                                      [number]
 --help, -h       Show help                                           [boolean]
 ```
 
@@ -221,6 +225,7 @@ If they contain flash data the byte 3 of the CAN message will be set accordingly
 | Flash read data          | `0b01001000` | MCU to Remote                   |
 | Flash read address error | `0b01001011` | MCU to Remote                   |
 | Start app                | `0b10000000` | Remote to MCU and MCU to Remote |
+| Ping                     | `0b00000000` | Remote to MCU                   |
 
 *Hint:* All flash addresses will always be the uint32_t byte address with the bytes ordered in big-endian format.
 

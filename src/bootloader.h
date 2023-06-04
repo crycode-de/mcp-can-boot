@@ -36,6 +36,7 @@
 /*
  * CAN message commands definitions
  */
+#define CMD_PING                     0b00000000 // remote -> mcu
 #define CMD_ERROR                    0b00000001 // mcu -> remote
 #define CMD_BOOTLOADER_START         0b00000010 // mcu -> remote
 #define CMD_FLASH_INIT               0b00000110 // remote -> mcu
@@ -99,6 +100,12 @@ void startApp ();
   #endif
   #if CAN_ID_REMOTE_TO_MCU > 0x7FF
     #error CAN_EFF is not enabled and CAN_ID_REMOTE_TO_MCU is greater than 0x7FF! Please check your config!
+  #endif
+#endif
+
+#ifdef CAN_KBPS_DETECT
+  #if !defined(TIMEOUT_DETECT_CAN_KBPS)
+    #error When using CAN_KBPS_DETECT, also TIMEOUT_DETECT_CAN_KBPS must be defined!
   #endif
 #endif
 

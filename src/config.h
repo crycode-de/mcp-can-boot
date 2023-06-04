@@ -13,14 +13,6 @@
 #define	__MCP_CAN_BOOT_CONFIG_H__
 
 /**
- * Optional definition of a LED port, which will be used to indicate
- * bootloader actions.
- */
-//#define LED      PORTA1
-//#define LED_DDR  DDRA
-//#define LED_PORT PORTA
-
-/**
  * The ID of the MCU to identify it in bootloader CAN messages.
  * You may use a fixed value or an expressions to get the ID from the EEPROM
  * which allows you to change the ID by your main application.
@@ -39,12 +31,38 @@
 #define TIMEOUT 250
 
 /**
- * Data rate of the CAN bus.
+ * Bitrate of the CAN bus.
  * CAN_5KBPS, CAN_10KBPS, CAN_20KBPS, CAN_31K25BPS, CAN_33KBPS, CAN_40KBPS,
  * CAN_50KBPS, CAN_80KBPS, CAN_83K3BPS, CAN_95KBPS, CAN_100KBPS, CAN_125KBPS,
  * CAN_200KBPS, CAN_250KBPS, CAN_500KBPS or CAN_1000KBPS
  */
 #define CAN_KBPS CAN_500KBPS
+
+/**
+ * Set multiple bitrates to let the bootloader try to detect the bitrate used on
+ * the CAN bus.
+ * For each set bitrate the MCP2515 will be set to this bitrate and into listen
+ * only mode. Then the bootloader will wait for a defined timeout to receive a
+ * valid message. If a message is received the bootloader will assume the
+ * current bitrate as the bitrate to use.
+ * If no bitrate could be detected, the fixed bitrate defined in CAN_KBPS will
+ * be used. If not defined, only the fixed bitrate will be used.
+ * Hint: If you use this together with the LED definition, you may need to use
+ *   a 4096 words bootloader section together with the *_4k PlatformIO envs
+ *   for some MCUs, but a 4096 words bootloader is not supported by all MCUs.
+ * Hint: If you use this, the delay to boot the main application will be in
+ *   worst case the TIMEOUT set above plus the number of bitrates to detect
+ *   multiplied by the TIMEOUT_DETECT_CAN_KBPS.
+ */
+//#define CAN_KBPS_DETECT CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS
+
+/**
+ * Timeout for each bitrate to detect a valid message in milliseconds.
+ * In this time a valid message must be received to let the bootloader detect
+ * the bitrate.
+ * Only used if CAN_KBPS_DETECT is set.
+ */
+//#define TIMEOUT_DETECT_CAN_KBPS 100
 
 /**
  * Clock speed of the MCP2515 CAN controller.
@@ -86,6 +104,14 @@
  */
 #define CAN_ID_REMOTE_TO_MCU 0x1FFFFF02UL
 //#define CAN_ID_REMOTE_TO_MCU 0x1F2
+
+/**
+ * Optional definition of a LED port, which will be used to indicate
+ * bootloader actions.
+ */
+//#define LED      PORTA1
+//#define LED_DDR  DDRA
+//#define LED_PORT PORTA
 
 /**
  * Store the MCU Status Register to Register 2 (R2).
