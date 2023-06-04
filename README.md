@@ -73,7 +73,7 @@ The first four bytes are used for MCU identification, commands, data lengths and
 
 ## Flash-App
 
-The remote application for flashing the MCU using the CAN bus is written in [Node.js](https://nodejs.org/) and located in the [mcp-can-boot-flash-app repository](https://github.com/crycode-de/mcp-can-boot-flash-app).
+The official remote application for flashing the MCU using the CAN bus is written in [Node.js](https://nodejs.org/) and located in the [mcp-can-boot-flash-app repository](https://github.com/crycode-de/mcp-can-boot-flash-app).
 
 The flash-app is also available on *npm* as `mcp-can-boot-flash-app`.
 
@@ -122,6 +122,10 @@ Example:
 ```
 npx mcp-can-boot-flash-app -f firmware.hex -p m1284p -m 0x0042
 ```
+
+### Inofficial (thirdparty) flash applications
+
+* [AVR CAN flasher](https://github.com/Nerdiyde/AVR_CAN_flasher) - ESP32 port of the Flash-App
 
 ## How to reset the MCU by your main application
 
@@ -354,6 +358,30 @@ Additionally a *start app* command may be send at any time by the flash applicat
 ### Communication example
 
 ![Communication example](./doc/flash-sequence.svg)
+
+## Changelog
+
+## WIP
+
+* Added support for _ATmega32U4_
+* Optimized bootloader size (724 to 770 bytes smaller dending on used MCU)  
+  Thanks to [Dan Hankewycz (hankedan000)](https://github.com/hankedan000)!
+* Added bitrate detect feature (merged from it's own branch since it now fits into 2048 words bootloader section)
+
+## 1.3.1 (2021-09-30)
+
+* Fixed variable overflow while flashing addresses bigger than 0xFFFF (Tanks to Cosmin-Andrei Popovici for reporting this issue!)
+* Updated readme and fixed some spelling issues
+
+## 1.3.0 (2021-06-18)
+
+* Added config option to use SFF CAN-IDs instead of the default EFF CAN-IDs
+* Added some basic checks for the defined CAN-IDs at compile time
+
+## 1.2.0 (2021-06-17)
+
+* Added storing MCUSR into R2 on bootup  
+  This makes it possible to find the MCU reset caused in run code.
 
 ## License
 

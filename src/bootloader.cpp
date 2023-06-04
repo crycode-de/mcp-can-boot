@@ -3,7 +3,7 @@
  *
  * CAN bus bootloader for AVR microcontrollers attached to an MCP2515 CAN controller.
  *
- * Copyright (C) 2020-2021 Peter Müller <peter@crycode.de> (https://crycode.de)
+ * Copyright (C) 2020-2023 Peter Müller <peter@crycode.de> (https://crycode.de)
  * License: CC BY-NC-SA 4.0
  */
 
@@ -239,7 +239,7 @@ int main () {
         #endif
 
         if (!flashing) {
-          // we are not in bootloading mode... only halde flash init messages
+          // we are not in bootloading mode... only handle flash init messages
           if (canMsg.data[CAN_DATA_BYTE_CMD] == CMD_FLASH_INIT
             && canMsg.data[4] == SIGNATURE_0
             && canMsg.data[5] == SIGNATURE_1
