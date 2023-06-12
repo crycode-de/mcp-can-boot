@@ -361,7 +361,7 @@ Additionally a *start app* command may be send at any time by the flash applicat
 
 ## Changelog
 
-## WIP
+## 1.4.0 (2023-06-12)
 
 * Added support for _ATmega32U4_
 * Optimized bootloader size (724 to 770 bytes smaller dending on used MCU)  
