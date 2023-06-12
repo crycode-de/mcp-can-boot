@@ -64,6 +64,7 @@
  * Function declarations
  */
 int main ();
+void prepMsg (uint8_t cmd, uint8_t len, uint32_t flashAddr);
 void writeFlashPage ();
 void boot_program_page (uint16_t page, uint8_t *buf);
 void startApp ();

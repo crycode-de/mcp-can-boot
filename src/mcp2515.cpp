@@ -638,7 +638,7 @@ MCP2515::ERROR MCP2515::readMessage(struct can_frame *frame) {
   if ( ! (stat & STAT_RX0IF)) {
     return ERROR_NOMSG;
   }
-  
+
   const struct RXBn_REGS *rxb = &RXB[0];// bootloader only uses rx0
 
   uint8_t tbufdata[5];

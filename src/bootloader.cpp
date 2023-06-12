@@ -65,15 +65,6 @@ void get_mcusr(void) {
   wdt_disable();
 }
 
-void prepMsg(uint8_t cmd, uint8_t len, uint32_t flashAddr) {
-  canMsg.data[CAN_DATA_BYTE_CMD]          = cmd;
-  canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = (len << 5) | (flashAddr & 0b00011111);
-  canMsg.data[4] = (flashAddr >> 24) & 0xFF;
-  canMsg.data[5] = (flashAddr >> 16) & 0xFF;
-  canMsg.data[6] = (flashAddr >> 8) & 0xFF;
-  canMsg.data[7] = flashAddr & 0xFF;
-}
-
 /**
  * The main function of the bootloader.
  */
@@ -411,6 +402,19 @@ int main () {
       }
     }
   }
+}
+
+/**
+ * Prepare data to send a CAN message with command, length and flash address.
+ * Using this function whenever possible will save some flash space.
+ */
+void prepMsg (uint8_t cmd, uint8_t len, uint32_t flashAddr) {
+  canMsg.data[CAN_DATA_BYTE_CMD]          = cmd;
+  canMsg.data[CAN_DATA_BYTE_LEN_AND_ADDR] = (len << 5) | (flashAddr & 0b00011111);
+  canMsg.data[4] = (flashAddr >> 24) & 0xFF;
+  canMsg.data[5] = (flashAddr >> 16) & 0xFF;
+  canMsg.data[6] = (flashAddr >> 8) & 0xFF;
+  canMsg.data[7] = flashAddr & 0xFF;
 }
 
 /**
